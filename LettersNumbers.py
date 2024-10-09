@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytesseract
 import re
+from imutils import contours
 
 
 #PyTesseract Lib https://pypi.org/project/pytesseract/
@@ -20,7 +21,6 @@ import re
 #words everytime, and can't detect letters very far away in the image.
 
 
-#TODO: Apply thresholding
 #TODO: Identify single boxes in word search
 #TODO: Make it work better lol
 
@@ -33,6 +33,7 @@ def is_valid_text(text):
     # Only allow alphanumeric strings (words or numbers)
     return re.fullmatch(r'[a-zA-Z0-9]+', text) is not None
 
+
 #Function to draw bounding boxes over detected text
 def draw_boxes(frame, boxes):
     h, w, _ = frame.shape  #Get image dimensions
@@ -44,18 +45,20 @@ def draw_boxes(frame, boxes):
         y2 = h - y2
         #Draw a rectangle around each detected character
         cv2.rectangle(frame, (x, y2), (x2, y), (0, 255, 0), 2)
+        
 
 #Function to process the frame and detect text and retrieve box coor-> I haven't explored other functions in pytesseract and explored 
 #minimally in using other libraries so this could be another path to explore
 def detect_text(frame):
-    #Convert the frame to grayscale (improves OCR accuracy)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    thresh = process_grid_image(frame)
 
     #Get bounding boxes for each detected character
-    boxes = pytesseract.image_to_boxes(gray)
+    boxes = pytesseract.image_to_boxes(thresh)
 
     #Apply OCR to the frame and split text into individual words
-    text = pytesseract.image_to_string(gray, config='--psm 6')
+    custom_config = r'--oem 3 --psm 6'
+    text = pytesseract.image_to_string(thresh, config=custom_config)
     words = text.split()
 
     #Initialize an empty list to store detected words/numbers in the current frame
@@ -71,14 +74,55 @@ def detect_text(frame):
 
 
 
+def process_grid_image(frame):
+    #Convert the frame to grayscale (improves OCR accuracy)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,57,5)
+
+    #Filter out all numbers and noise to isolate only boxes
+    cnts = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        area = cv2.contourArea(c)
+        if area < 1000:
+            cv2.drawContours(thresh, [c], -1, (0,0,0), -1)
+
+    #Fix vertical lines
+    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 20))  # Increase height for longer lines
+    vertical_lines = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, vertical_kernel, iterations=2)
+    
+    #Fix horizontal lines
+    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))  # Increase width for longer lines
+    horizontal_lines = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, horizontal_kernel, iterations=2)
+
+    #Combine the horizontal and vertical lines
+    grid_lines = cv2.addWeighted(vertical_lines, 1, horizontal_lines, 1, 0)
+    
+    grid_lines = 255 - grid_lines
+    
+    return grid_lines
+
+    
+     
+
+
 
 #########Testing#########
 
-#Code to test that detecting text in a image works
-#img = cv2.imread(os.path.relpath('data/sud.jpg'))
-#print(pytesseract.image_to_string(img))
+img = cv2.imread(os.path.relpath('data/sud.jpg'))
+
+thresh = process_grid_image(img)
+
+plt.imshow(img)
+plt.show()
+plt.imshow(thresh, cmap='gray')
+plt.show()
+
+
 
 #Initialize the video capture (0 is the default webcam)
+"""
 cap = cv2.VideoCapture(0)
 win_name = "Live Text Detection"
 cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
@@ -108,3 +152,4 @@ while True: # This code is taken from Homework 4
 #Release the capture when done
 cap.release()
 cv2.destroyAllWindows()
+"""
