@@ -11,7 +11,7 @@ from imutils import contours
 #Tesseract https://tesseract-ocr.github.io/tessdoc/Installation.html
 
 #Introduction: SO far the code works well in identifing words like "computer" and "babies", however it 
-#doesn't work as well with identifying singel letters and numbers. The todo's will hopefully improve results.
+#doesn't work as well with identifying singel letters and numbers. The todo's will hopefully improve results. 
 
 #Progress: Currently, we can detect letter and numbers frame by frame with low accuarcy with the detect_text funtion, 
 #but its a start. The functoin also returns the box coordinates of each detected letter/number
@@ -21,8 +21,9 @@ from imutils import contours
 #words everytime, and can't detect letters very far away in the image.
 
 
-#TODO: Identify single boxes in word search
-#TODO: Make it work better lol
+#TODO: Identify single boxes in word search. Currently we have the grid without any numbers. My inital thinking was to then identify each 
+#TODO: individual cell, and use pytesseract to identify the number/letter.
+#TODO: Make it work better lol. Suggestions, feedback, and maybe even converting to more suceesfull method(trying something new) is appreciated!
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
