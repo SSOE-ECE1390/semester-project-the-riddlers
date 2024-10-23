@@ -150,4 +150,3 @@ while True: # This code is taken from Homework 4
 #Release the capture when done
 cap.release()
 cv2.destroyAllWindows()
-"""
