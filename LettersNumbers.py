@@ -9,6 +9,7 @@ from imutils import contours
 
 #PyTesseract Lib https://pypi.org/project/pytesseract/
 #Tesseract https://tesseract-ocr.github.io/tessdoc/Installation.html
+#https://gist.github.com/qgolsteyn/7da376ced650a2894c2432b131485f5d
 
 #Introduction: SO far the code works well in identifing words like "computer" and "babies", however it 
 #doesn't work as well with identifying singel letters and numbers. The todo's will hopefully improve results.
@@ -21,8 +22,10 @@ from imutils import contours
 #words everytime, and can't detect letters very far away in the image.
 
 
-#TODO: Identify single boxes in word search
+#TODO: Split the grid into cells from process_grid_image. Take the cells and iscolate each number/letter. 
 #TODO: Make it work better lol
+
+
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -103,10 +106,6 @@ def process_grid_image(frame):
     
     return grid_lines
 
-    
-     
-
-
 
 #########Testing#########
 
@@ -122,7 +121,7 @@ plt.show()
 
 
 #Initialize the video capture (0 is the default webcam)
-"""
+
 cap = cv2.VideoCapture(0)
 win_name = "Live Text Detection"
 cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
@@ -152,4 +151,3 @@ while True: # This code is taken from Homework 4
 #Release the capture when done
 cap.release()
 cv2.destroyAllWindows()
-"""
