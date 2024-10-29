@@ -97,46 +97,52 @@ def calcIntercept(line1, line2):
     #line1[2]=m(line1[1])+b
     slope1 = (line1[1]-line1[3])/(line1[0]-line1[2])
     intercept1 = line1[1]-slope1*line1[0]#-line1[1]
-    print(f"line1[0]: {line1[0]}")
-    print(f"line1[1]: {line1[1]}")
-    print(f"line1[2]: {line1[2]}")
-    print(f"line1[3]: {line1[3]}")
-    print(f"slope1: {slope1}")
-    print(f"intercept1: {intercept1}")
+    #print(f"line1[0]: {line1[0]}")
+    #print(f"line1[1]: {line1[1]}")
+    #print(f"line1[2]: {line1[2]}")
+    #print(f"line1[3]: {line1[3]}")
+    #print(f"slope1: {slope1}")
+    #print(f"intercept1: {intercept1}")
 
     slope2 = (line2[1]-line2[3])/(line2[0]-line2[2])
     intercept2 = line2[1]-slope2*line2[0]#-line2[1]
-    print(f"line2[0]: {line2[0]}")
-    print(f"line2[1]: {line2[1]}")
-    print(f"line2[2]: {line2[2]}")
-    print(f"line2[3]: {line2[3]}")
-    print(f"slope2: {slope2}")
-    print(f"intercept2: {intercept2}")
+    #print(f"line2[0]: {line2[0]}")
+    #print(f"line2[1]: {line2[1]}")
+    #print(f"line2[2]: {line2[2]}")
+    #print(f"line2[3]: {line2[3]}")
+    #print(f"slope2: {slope2}")
+    #print(f"intercept2: {intercept2}")
     #test = img.copy()
     #test = cv2.line(test, (line1[0], line1[1]), (line1[2], line1[3]), (0,0,255), 3, cv2.LINE_AA)
     #test = cv2.line(test, (line2[0], line2[1]), (line2[2], line2[3]), (0,0,255), 3, cv2.LINE_AA)
 
     #horizontal line cases
     if(line1[1]-line1[3]==0):
-        test = cv2.circle(test, (line1[1].astype(np.int32),(slope2*line1[1]+intercept2).astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
-        plt.imshow(test)
-        plt.show()
-        return (line1[1].astype(np.int32),(slope2*line1[1]+intercept2).astype(np.int32))
+        #test = cv2.circle(test, (line1[1].astype(np.int32),(slope2*line1[1]+intercept2).astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
+        #plt.imshow(test)
+        #plt.show()
+        print(line1)
+        print(line2)
+        print(line1[1].astype(np.int32),((line1[1]-intercept2)/slope2).astype(np.int32))
+        return (line1[1].astype(np.int32),((line1[1]-intercept2)/slope2).astype(np.int32))
     if(line2[1]-line2[3]==0):
-        test = cv2.circle(test, (line2[1].astype(np.int32),(slope1*line2[1]+intercept1).astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
-        plt.imshow(test)
-        plt.show()
-        return (line2[1].astype(np.int32),(slope1*line2[1]+intercept1).astype(np.int32))
+        #test = cv2.circle(test, (line2[1].astype(np.int32),(slope1*line2[1]+intercept1).astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
+        #plt.imshow(test)
+        #plt.show()
+        print(line1)
+        print(line2)
+        print(line2[1].astype(np.int32),((line2[1]-intercept1)/slope1).astype(np.int32))
+        return (line2[1].astype(np.int32),((line2[1]-intercept1)/slope1).astype(np.int32))
     x = (intercept2-intercept1) / (slope1-slope2)
     y = slope1*x+intercept1
-    print(x)
-    print(y)
-    test = cv2.circle(test, (x.astype(np.int32),y.astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
-    print(x.astype(np.int32))
-    print(y.astype(np.int32))
-    test = cv2.circle(test, (250,250), 30, (255,0,0), 30, cv2.LINE_AA)
-    plt.imshow(test)
-    plt.show()
+    #print(x)
+    #print(y)
+    #test = cv2.circle(test, (x.astype(np.int32),y.astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
+    #print(x.astype(np.int32))
+    #print(y.astype(np.int32))
+    #test = cv2.circle(test, (250,250), 30, (255,0,0), 30, cv2.LINE_AA)
+    #plt.imshow(test)
+    #plt.show()
     return (x.astype(np.int32),y.astype(np.int32))
     
 
@@ -147,12 +153,41 @@ def getSquares(lines):
         line = i[0]
         horizontal = abs(line[0]-line[2])
         vertical = abs(line[1]-line[3])
+        #if(vertical==0 or horizontal==0):
+        #    pass
         if(vertical>horizontal):
             verticalLines.append(line)
         if(vertical<horizontal):
             horizontalLines.append(line)
     verticalLines.sort(key=lambda x:x[1])
     horizontalLines.sort(key=lambda x:x[0])
+    newVerticalLines = []
+    newHorizontalLines = []
+    for i in range(0, len(verticalLines)-1):
+        if(verticalLines[i][1]-verticalLines[i+1][1] < 10):
+            newVerticalLines.append(verticalLines[i])
+        print(verticalLines[i][1]-verticalLines[i+1][1])
+    for i in range(0, len(horizontalLines)-1):
+        if(horizontalLines[i][0]-horizontalLines[i+1][0] < 10):
+            newHorizontalLines.append(horizontalLines[i])
+        print(horizontalLines[i][0]-horizontalLines[i+1][0])
+    for i in newVerticalLines:
+        print(i)
+    for i in newHorizontalLines:
+        print(i)
+    horizontalLines = newHorizontalLines
+    verticalLines = newVerticalLines
+    #for i in range(0,len(verticalLines)-1):
+    #    print(i)
+    #    if(verticalLines[i][1]-verticalLines[i+1][1]<1):
+    #        print(verticalLines[i])
+    #        del verticalLines[i]
+    #        i-=1;
+    #for i in range(0,len(horizontalLines)-1):
+    #    print(i)
+    #    if(horizontalLines[i][0]-horizontalLines[i+1][0]<1):
+    #        del horizontalLines[i]
+    #        i-=1;
     print(verticalLines)
     test = img.copy()
     for i in verticalLines:
@@ -167,17 +202,20 @@ def getSquares(lines):
     plt.show()
     squares = []
     test = img.copy()
+    print(len(verticalLines))
+    print(len(horizontalLines))
     for i in range(0,len(verticalLines)-1):
         for j in range(0,len(horizontalLines)-1):
+            print(j)
             point1 = calcIntercept(verticalLines[i], horizontalLines[j])
             #print(point1)
             point4 = calcIntercept(verticalLines[i+1], horizontalLines[j+1])
             #print(point4)
-            if((point1[0]-point4[0]>100) and (point1[1]-point4[1]>100)):
-                test = cv2.rectangle(test, point1, point4, (255,0,0), 3)
+            #if((point1[0]-point4[0]>100) and (point1[1]-point4[1]>100)):
+            #    test = cv2.rectangle(test, point1, point4, (255,0,0), 3)
             squares.append((point1, point4))
-    plt.imshow(test)
-    plt.show()
+    #plt.imshow(test)
+    #plt.show()
     return squares
 
 
@@ -205,9 +243,13 @@ myImage = img.copy()
 
 squares = getSquares(linesP)
 for i in squares:
+    print(i)
     #print(i[0])
     #print(i[1])
-    myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    for j in i:
+        if(j[0]<0 or j[1]<0 or j[0]>2160 or j[1]>3840):
+            print("here")
+            myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
 
 plt.imshow(myImage)
 plt.show()
