@@ -133,6 +133,10 @@ def extract_number(img, test):
     text = process_text(sharpened_image)
     print(f"Sharpened Image: {text}")
     print(f"End Test {test}\n")
+    
+def change_res(cap,width,height):
+    cap.set(3,width)
+    cap.set(4,height)
 #########Testing#########
 
 img = cv2.imread(os.path.relpath('data/video_k.jpg'))
@@ -143,13 +147,30 @@ img = cv2.imread(os.path.relpath('data/video_1.jpg'))
 extract_number(img, "1")
 img = cv2.imread(os.path.relpath('data/video_m.jpg'))
 extract_number(img, "m")
+img = cv2.imread(os.path.relpath('data/video_k_1.jpg'))
+extract_number(img, "k1")
+img = cv2.imread(os.path.relpath('data/video_L.jpg'))
+extract_number(img, "L")
+img = cv2.imread(os.path.relpath('data/video_a.jpg'))
+extract_number(img, "a")
+img = cv2.imread(os.path.relpath('data/video_2.jpg'))
+extract_number(img, "2")
+img = cv2.imread(os.path.relpath('data/video_3.jpg'))
+extract_number(img, "3")
+img = cv2.imread(os.path.relpath('data/video_7.jpg'))
+extract_number(img, "7")
+img = cv2.imread(os.path.relpath('data/video_9.jpg'))
+extract_number(img, "9")
+
 
 
 #Initialize the video capture (0 is the default webcam)
-"""
+""""
 cap = cv2.VideoCapture(0)
 win_name = "Live Text Detection"
 cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
+
+
 while True: # This code is taken from Homework 4
     #Capture frame-by-frame
     ret, frame = cap.read()
