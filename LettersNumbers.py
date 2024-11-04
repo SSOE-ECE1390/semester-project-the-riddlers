@@ -105,22 +105,48 @@ def process_grid_image(frame):
     
     return grid_lines
 
+#Function to convert image to string
+def process_text(frame):
+    custom_config = r'--oem 3 --psm 6'
+    text = pytesseract.image_to_string(frame, config=custom_config)
+    return text
 
+def extract_number(img, test):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
+    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
+
+
+    plt.figure(figsize=(10, 10))
+    plt.subplot(1, 4, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
+    plt.subplot(1, 4, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
+    plt.subplot(1, 4, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
+    plt.show()
+    
+    print(f"\nStart Test {test}")
+    text = process_text(denoised_image)
+    print(f"Denosied Image: {text}")
+    text = process_text(blurred)
+    print(f"Blurred Image: {text}")
+    text = process_text(sharpened_image)
+    print(f"Sharpened Image: {text}")
+    print(f"End Test {test}\n")
 #########Testing#########
 
-img = cv2.imread(os.path.relpath('data/sud.jpg'))
-
-thresh = process_grid_image(img)
-
-plt.imshow(img)
-plt.show()
-plt.imshow(thresh, cmap='gray')
-plt.show()
-
+img = cv2.imread(os.path.relpath('data/video_k.jpg'))
+extract_number(img, "k")
+img = cv2.imread(os.path.relpath('data/video_5.jpg'))
+extract_number(img, 5)
+img = cv2.imread(os.path.relpath('data/video_1.jpg'))
+extract_number(img, "1")
+img = cv2.imread(os.path.relpath('data/video_m.jpg'))
+extract_number(img, "m")
 
 
 #Initialize the video capture (0 is the default webcam)
-
+"""
 cap = cv2.VideoCapture(0)
 win_name = "Live Text Detection"
 cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
@@ -150,3 +176,4 @@ while True: # This code is taken from Homework 4
 #Release the capture when done
 cap.release()
 cv2.destroyAllWindows()
+"""
