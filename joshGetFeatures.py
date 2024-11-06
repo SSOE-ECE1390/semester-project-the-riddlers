@@ -194,6 +194,10 @@ def getSquares(lines):
     print(horizontalPoints)
         #preprocessing is finished
     verticalFit = KMeans(10).fit(verticalPoints)
+    horizontalFit = KMeans(10).fit(horizontalPoints)
+    
+    print(verticalFit.predict(verticalPoints))
+    print(horizontalFit.predict(horizontalPoints))
     exit(0)
     verticalKMeans = KMeans(10).fit(verticalLines)
     horizontalKMeans = KMeans(10).fit(horizontalLines)
