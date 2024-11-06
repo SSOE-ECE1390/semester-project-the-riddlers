@@ -3,6 +3,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colormaps
+from sklearn.cluster import KMeans
 
 def reject_outliers(data, ind, m=2.0):
     myData = np.array(data)
@@ -180,6 +181,20 @@ def getSquares(lines):
     plt.show()
 
     # end remove outliers
+    # kmeans to find points
+    verticalLines = np.array(verticalLines)
+    horizontalLines = np.array(horizontalLines)
+    verticalPoints = verticalLines[:,0:1]
+    horizontalPoints = horizontalLines[:,0:1]
+    print(verticalLines)
+    print(horizontalLines)
+    print(verticalPoints)
+    exit(0)
+    verticalKMeans = KMeans(10).fit(verticalLines)
+    horizontalKMeans = KMeans(10).fit(horizontalLines)
+    verticalKMeans.predict(verticalLines)
+    horizontalKMeans.predict(horizontalLines)
+    # kmeans to find points
     verticalLines.sort(key=lambda x:x[1])
     horizontalLines.sort(key=lambda x:x[0])
     newVerticalLines = []
