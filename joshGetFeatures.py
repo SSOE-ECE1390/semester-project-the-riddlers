@@ -4,6 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colormaps
 
+def reject_outliers(data, dim, m=2):
+    print(data)
+    relevant = data[:,dim]
+    print(data[:,dim])
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
+
 img = cv2.imread("testImage.png")
 B,G,R = cv2.split(img)
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -112,7 +118,7 @@ def calcIntercept(line1, line2):
     #print(f"line2[3]: {line2[3]}")
     #print(f"slope2: {slope2}")
     #print(f"intercept2: {intercept2}")
-    #test = img.copy()
+    test = img.copy()
     #test = cv2.line(test, (line1[0], line1[1]), (line1[2], line1[3]), (0,0,255), 3, cv2.LINE_AA)
     #test = cv2.line(test, (line2[0], line2[1]), (line2[2], line2[3]), (0,0,255), 3, cv2.LINE_AA)
 
@@ -137,12 +143,12 @@ def calcIntercept(line1, line2):
     y = slope1*x+intercept1
     #print(x)
     #print(y)
-    #test = cv2.circle(test, (x.astype(np.int32),y.astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
-    #print(x.astype(np.int32))
-    #print(y.astype(np.int32))
+    test = cv2.circle(test, (x.astype(np.int32),y.astype(np.int32)), 30, (255,0,0), 30, cv2.LINE_AA)
+    print(x.astype(np.int32))
+    print(y.astype(np.int32))
     #test = cv2.circle(test, (250,250), 30, (255,0,0), 30, cv2.LINE_AA)
-    #plt.imshow(test)
-    #plt.show()
+    plt.imshow(test)
+    plt.show()
     return (x.astype(np.int32),y.astype(np.int32))
     
 
@@ -159,16 +165,33 @@ def getSquares(lines):
             verticalLines.append(line)
         if(vertical<horizontal):
             horizontalLines.append(line)
+    # remove outliers
+    verticalLines = reject_outliers(verticalLines, 0)
+    horizontalLines = reject_outliers(horizontalLines, 1)
+    test = img.copy()
+    for i in verticalLines:
+        test = cv2.line(test, (i[0], i[1]), (i[2], i[3]), (0,0,255), 3, cv2.LINE_AA)
+    plt.imshow(test)
+    plt.show()
+    print(horizontalLines)
+    test = img.copy()
+    for i in horizontalLines:
+        test = cv2.line(test, (i[0], i[1]), (i[2], i[3]), (0,0,255), 3, cv2.LINE_AA)
+    plt.imshow(test)
+    plt.show()
+
+    # end remove outliers
     verticalLines.sort(key=lambda x:x[1])
     horizontalLines.sort(key=lambda x:x[0])
     newVerticalLines = []
     newHorizontalLines = []
+    # remove lines that are too close together
     for i in range(0, len(verticalLines)-1):
-        if(verticalLines[i][1]-verticalLines[i+1][1] < 10):
+        if(abs(verticalLines[i][1]-verticalLines[i+1][1]) > 10):
             newVerticalLines.append(verticalLines[i])
         print(verticalLines[i][1]-verticalLines[i+1][1])
     for i in range(0, len(horizontalLines)-1):
-        if(horizontalLines[i][0]-horizontalLines[i+1][0] < 10):
+        if(abs(horizontalLines[i][0]-horizontalLines[i+1][0]) > 10):
             newHorizontalLines.append(horizontalLines[i])
         print(horizontalLines[i][0]-horizontalLines[i+1][0])
     for i in newVerticalLines:
@@ -200,6 +223,7 @@ def getSquares(lines):
         test = cv2.line(test, (i[0], i[1]), (i[2], i[3]), (0,0,255), 3, cv2.LINE_AA)
     plt.imshow(test)
     plt.show()
+    print("here")
     squares = []
     test = img.copy()
     print(len(verticalLines))
@@ -246,10 +270,13 @@ for i in squares:
     print(i)
     #print(i[0])
     #print(i[1])
-    for j in i:
-        if(j[0]<0 or j[1]<0 or j[0]>2160 or j[1]>3840):
-            print("here")
-            myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    if(not (i[0][0]<0 or i[0][1]<0 or i[0][0]>2160 or i[0][1]>3840 or i[1][0]<0 or i[1][1]<0 or i[1][0]>2160 or i[1][1]>3840)):
+        print("here")
+        myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    #for j in i:
+    #    if(not (j[0]<0 or j[1]<0 or j[0]>2160 or j[1]>3840)):
+    #        print("here")
+    #        myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
 
 plt.imshow(myImage)
 plt.show()
