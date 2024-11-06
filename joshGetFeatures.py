@@ -184,11 +184,16 @@ def getSquares(lines):
     # kmeans to find points
     verticalLines = np.array(verticalLines)
     horizontalLines = np.array(horizontalLines)
-    verticalPoints = verticalLines[:,0:1]
-    horizontalPoints = horizontalLines[:,0:1]
+    verticalPoints = verticalLines[:,0:2]
+    horizontalPoints = horizontalLines[:,0:2]
+    verticalPoints[:,1] = 0
+    horizontalPoints[:,0] = 0
     print(verticalLines)
     print(horizontalLines)
     print(verticalPoints)
+    print(horizontalPoints)
+        #preprocessing is finished
+    verticalFit = KMeans(10).fit(verticalPoints)
     exit(0)
     verticalKMeans = KMeans(10).fit(verticalLines)
     horizontalKMeans = KMeans(10).fit(horizontalLines)
