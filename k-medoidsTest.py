@@ -39,6 +39,10 @@ myKMeans = KMeans(5)
 ans = myKMeans.fit(X)
 print(ans.cluster_centers_)
 
+fittedX = []
+
+print(ans.predict(X))
+
 #ed = euclidean_distances(X)
 #print(ed)
 ##print(np.__version__)
