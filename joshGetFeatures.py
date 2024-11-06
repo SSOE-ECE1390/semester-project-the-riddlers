@@ -4,11 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colormaps
 
-def reject_outliers(data, ind, m=2):
+def reject_outliers(data, ind, m=2.0):
+    myData = np.array(data)
     relevant = np.array(data)[:,ind]
-    print(relevant)
-    print(np.mean(relevant)
-    return data[abs(relevant - np.mean(relevant)) < m * np.std(relevant)]
+    return myData[(abs(relevant-np.mean(relevant)) < m*np.std(relevant))].tolist()
 
 img = cv2.imread("testImage.png")
 B,G,R = cv2.split(img)
@@ -166,8 +165,8 @@ def getSquares(lines):
         if(vertical<horizontal):
             horizontalLines.append(line)
     # remove outliers
-    verticalLines = reject_outliers(verticalLines, 0)
-    horizontalLines = reject_outliers(horizontalLines, 1)
+    verticalLines = reject_outliers(verticalLines, 0, 1.5)
+    horizontalLines = reject_outliers(horizontalLines, 1, 1.5)
     test = img.copy()
     for i in verticalLines:
         test = cv2.line(test, (i[0], i[1]), (i[2], i[3]), (0,0,255), 3, cv2.LINE_AA)
