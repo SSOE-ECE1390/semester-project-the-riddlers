@@ -4,11 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colormaps
 
-def reject_outliers(data, dim, m=2):
-    print(data)
-    relevant = data[:,dim]
-    print(data[:,dim])
-    return data[abs(data - np.mean(data)) < m * np.std(data)]
+def reject_outliers(data, ind, m=2):
+    relevant = np.array(data)[:,ind]
+    print(relevant)
+    print(np.mean(relevant)
+    return data[abs(relevant - np.mean(relevant)) < m * np.std(relevant)]
 
 img = cv2.imread("testImage.png")
 B,G,R = cv2.split(img)
