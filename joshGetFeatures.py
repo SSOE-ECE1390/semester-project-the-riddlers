@@ -315,6 +315,7 @@ for i in squares:
 
 plt.imshow(myImage)
 plt.show()
+cv2.imwrite("squares.png", myImage)
 
 plt.imshow(outline,cmap='gray')
 plt.show()
