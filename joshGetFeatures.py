@@ -79,7 +79,7 @@ lines = cv2.cvtColor(lines.astype(np.uint8), cv2.COLOR_RGB2GRAY)
 plt.imshow(lines)
 plt.show()
 
-outline = cv2.Canny(lines, 80, 150)
+#outline = cv2.Canny(lines, 80, 150)
 
 linesP = cv2.HoughLinesP(lines, 1, np.pi / 180, 50, None, 400, 20)
 
@@ -317,8 +317,8 @@ plt.imshow(myImage)
 plt.show()
 cv2.imwrite("squares.png", myImage)
 
-plt.imshow(outline,cmap='gray')
-plt.show()
+#plt.imshow(outline,cmap='gray')
+#plt.show()
 
 plt.imshow(result)
 plt.show()
