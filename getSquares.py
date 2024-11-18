@@ -59,7 +59,6 @@ def calcIntercept(line1, line2):
     intercept2 = line2[1]-slope2*line2[0]#-line2[1]
 
     x = (intercept2-intercept1) / (slope1-slope2)
-    print("hereaksdjflakj")
     y = slope1*x+intercept1
     #vertical line cases
     if (abs(intercept1)>=2147483646):
@@ -69,8 +68,6 @@ def calcIntercept(line1, line2):
         x = line2[0]
         y = slope1*x+intercept1
     #end vertical line cases
-    print(x.astype(np.int32))
-    print(y.astype(np.int32))
 
     return (x.astype(np.int32),y.astype(np.int32))
     
@@ -146,17 +143,33 @@ def getSquares(lines):
             squares.append((point1, point4))
     return squares
 
-img = cv2.imread("testImage.png")
+if __name__=='__main__':
+    img = cv2.imread("testImage.png")
+    
+    myImage = img.copy()
+    # in order to use, run preprocessing function
+    linesP = preprocessing(myImage)
+    plt.imshow(linesP)
+    plt.show()
+    # send output of preprocessing function to getSquares to get list of rectangles
+    squares = getSquares(linesP)
+    # all done
 
-myImage = img.copy()
-# in order to use, run preprocessing function
-linesP = preprocessing(myImage)
-# send output of preprocessing function to getSquares to get list of rectangles
-squares = getSquares(linesP)
-# all done
-for i in squares:
-    myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
-
-plt.imshow(myImage)
-plt.show()
-cv2.imwrite("squares.png", myImage)
+    test = img.copy()
+    test = cv2.rectangle(test, squares[0][0], squares[0][1], (255,0,0), 3)
+    plt.imshow(test)
+    plt.show()
+    plt.imshow(myImage[squares[0][0][1]:squares[0][1][1], squares[0][0][0]:squares[0][1][0]])
+    print(squares[0][0][0])#x
+    print(squares[0][0][1])#y#bottom left
+    print(squares[0][1][0])#x
+    print(squares[0][1][1])#y#top right
+    plt.show()
+    for i in squares:
+        plt.imshow(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]])
+        plt.show()
+        myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    
+    plt.imshow(myImage)
+    plt.show()
+    cv2.imwrite("squares.png", myImage)
