@@ -146,17 +146,18 @@ def getSquares(lines):
             squares.append((point1, point4))
     return squares
 
-img = cv2.imread("testImage.png")
+if __name__=='__main__':
+    img = cv2.imread("testImage.png")
 
-myImage = img.copy()
-# in order to use, run preprocessing function
-linesP = preprocessing(myImage)
-# send output of preprocessing function to getSquares to get list of rectangles
-squares = getSquares(linesP)
-# all done
-for i in squares:
-    myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    myImage = img.copy()
+    # in order to use, run preprocessing function
+    linesP = preprocessing(myImage)
+    # send output of preprocessing function to getSquares to get list of rectangles
+    squares = getSquares(linesP)
+    # all done
+    for i in squares:
+        myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
 
-plt.imshow(myImage)
-plt.show()
-cv2.imwrite("squares.png", myImage)
+    plt.imshow(myImage)
+    plt.show()
+    cv2.imwrite("squares.png", myImage)

@@ -148,8 +148,28 @@ def image_to_letter(img):
 def change_res(cap,width,height):
     cap.set(3,width)
     cap.set(4,height)
+    
+    
+    
+def input_text(image, text):
+    position = (image.shape[1]//2, image.shape[0]//2)  # (x, y) coordinates of the text
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1
+    color = (255, 0, 0)  # BGR color (white in this case)
+    thickness = 3
+    
+    cv2.putText(image, text, position, font, font_scale, color, thickness)
+    
+    return image
+    
+    
 #########Testing#########
+img = cv2.imread(os.path.relpath('data/blanksquare.jpg'))
+image = input_text(img, 'A')
+plt.imshow(image)
+plt.show()
 
+"""
 img = cv2.imread(os.path.relpath('data/video_k.jpg'))
 extract_number_test(img, "k")
 img = cv2.imread(os.path.relpath('data/video_5.jpg'))
@@ -172,8 +192,9 @@ img = cv2.imread(os.path.relpath('data/video_7.jpg'))
 extract_number_test(img, "7")
 img = cv2.imread(os.path.relpath('data/video_9.jpg'))
 extract_number_test(img, "9")
+"""
 
-
+    
 
 #Initialize the video capture (0 is the default webcam)
 """"
