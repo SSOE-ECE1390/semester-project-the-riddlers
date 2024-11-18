@@ -158,6 +158,33 @@ if __name__=='__main__':
     for i in squares:
         myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
 
+=======
+    
+    myImage = img.copy()
+    # in order to use, run preprocessing function
+    linesP = preprocessing(myImage)
+    plt.imshow(linesP)
+    plt.show()
+    # send output of preprocessing function to getSquares to get list of rectangles
+    squares = getSquares(linesP)
+    # all done
+
+    test = img.copy()
+    test = cv2.rectangle(test, squares[0][0], squares[0][1], (255,0,0), 3)
+    plt.imshow(test)
+    plt.show()
+    plt.imshow(myImage[squares[0][0][1]:squares[0][1][1], squares[0][0][0]:squares[0][1][0]])
+    print(squares[0][0][0])#x
+    print(squares[0][0][1])#y#bottom left
+    print(squares[0][1][0])#x
+    print(squares[0][1][1])#y#top right
+    plt.show()
+    for i in squares:
+        plt.imshow(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]])
+        plt.show()
+        myImage = cv2.rectangle(myImage, i[0], i[1], (255,0,0), 3)
+    
+>>>>>>> 95d33063c97a54e28a9242b72dd6d7877ef3b5d9
     plt.imshow(myImage)
     plt.show()
     cv2.imwrite("squares.png", myImage)
