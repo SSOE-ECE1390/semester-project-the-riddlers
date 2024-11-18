@@ -59,7 +59,6 @@ def calcIntercept(line1, line2):
     intercept2 = line2[1]-slope2*line2[0]#-line2[1]
 
     x = (intercept2-intercept1) / (slope1-slope2)
-    print("hereaksdjflakj")
     y = slope1*x+intercept1
     #vertical line cases
     if (abs(intercept1)>=2147483646):
@@ -69,8 +68,6 @@ def calcIntercept(line1, line2):
         x = line2[0]
         y = slope1*x+intercept1
     #end vertical line cases
-    print(x.astype(np.int32))
-    print(y.astype(np.int32))
 
     return (x.astype(np.int32),y.astype(np.int32))
     
@@ -148,6 +145,7 @@ def getSquares(lines):
 
 if __name__=='__main__':
     img = cv2.imread("testImage.png")
+<<<<<<< HEAD
 
     myImage = img.copy()
     # in order to use, run preprocessing function
