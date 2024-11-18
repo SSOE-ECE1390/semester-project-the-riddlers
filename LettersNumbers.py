@@ -111,7 +111,7 @@ def process_text(frame):
     text = pytesseract.image_to_string(frame, config=custom_config)
     return text
 
-def extract_number(img, test):
+def extract_number_test(img, test):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -134,33 +134,44 @@ def extract_number(img, test):
     print(f"Sharpened Image: {text}")
     print(f"End Test {test}\n")
     
+    
+def image_to_letter(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
+    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
+    text = process_text(sharpened_image)
+    
+    return text
+
 def change_res(cap,width,height):
     cap.set(3,width)
     cap.set(4,height)
 #########Testing#########
 
 img = cv2.imread(os.path.relpath('data/video_k.jpg'))
-extract_number(img, "k")
+extract_number_test(img, "k")
 img = cv2.imread(os.path.relpath('data/video_5.jpg'))
-extract_number(img, 5)
+extract_number_test(img, 5)
 img = cv2.imread(os.path.relpath('data/video_1.jpg'))
-extract_number(img, "1")
+extract_number_test(img, "1")
 img = cv2.imread(os.path.relpath('data/video_m.jpg'))
-extract_number(img, "m")
+extract_number_test(img, "m")
 img = cv2.imread(os.path.relpath('data/video_k_1.jpg'))
-extract_number(img, "k1")
+extract_number_test(img, "k1")
 img = cv2.imread(os.path.relpath('data/video_L.jpg'))
-extract_number(img, "L")
+extract_number_test(img, "L")
 img = cv2.imread(os.path.relpath('data/video_a.jpg'))
-extract_number(img, "a")
+extract_number_test(img, "a")
 img = cv2.imread(os.path.relpath('data/video_2.jpg'))
-extract_number(img, "2")
+extract_number_test(img, "2")
 img = cv2.imread(os.path.relpath('data/video_3.jpg'))
-extract_number(img, "3")
+extract_number_test(img, "3")
 img = cv2.imread(os.path.relpath('data/video_7.jpg'))
-extract_number(img, "7")
+extract_number_test(img, "7")
 img = cv2.imread(os.path.relpath('data/video_9.jpg'))
-extract_number(img, "9")
+extract_number_test(img, "9")
 
 
 
