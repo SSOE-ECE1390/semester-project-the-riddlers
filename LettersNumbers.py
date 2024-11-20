@@ -107,43 +107,110 @@ def process_grid_image(frame):
 
 #Function to convert image to string
 def process_text(frame):
-    custom_config = r'--oem 3 --psm 6'
+    custom_config = '--psm 10 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
     text = pytesseract.image_to_string(frame, config=custom_config)
     return text
 
-def extract_number_test(img, test):
+def process_text_with_confidence(image, config):
+    data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT, config=config)
+    texts = data['text']
+    confidences = data['conf']
+    results = []
+
+    for i, text in enumerate(texts):
+        if text.strip():  # Ignore empty results
+            results.append((text.strip(), int(confidences[i])))
+
+    return results
+
+def extract_number_test(img, test, character):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Preprocessing
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
+    _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-
+    # Display preprocessing results
     plt.figure(figsize=(10, 10))
     plt.subplot(1, 4, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
     plt.subplot(1, 4, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
     plt.subplot(1, 4, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
+    plt.subplot(1, 4, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
     plt.show()
-    
+
     print(f"\nStart Test {test}")
-    text = process_text(denoised_image)
-    print(f"Denosied Image: {text}")
-    text = process_text(blurred)
-    print(f"Blurred Image: {text}")
-    text = process_text(sharpened_image)
-    print(f"Sharpened Image: {text}")
-    print(f"End Test {test}\n")
+
+    all_results = []
+    if character:
+        config = '--psm 10 -c tessedit_char_whitelist=0123456789'
+    else:
+        config = '--psm 10 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    for step_name, image in [("Denoised", denoised_image), 
+                             ("Blurred", blurred), 
+                             ("Sharpened", sharpened_image), 
+                             ("Binary", binary_image)]:
+        results = process_text_with_confidence(image, config)
+        print(f"{step_name} Image Results:")
+        for text, confidence in results:
+            print(f"  Text: {text}, Confidence: {confidence}")
+            # Filter for single digits and confidence > 50
+            if text.isdigit() and len(text) == 1 and confidence > 50:
+                all_results.append((text, confidence))
+
+    # Find the result with the highest confidence
+    if all_results:
+        best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
+        print(f"\nBest Single Digit: {best_result[0]} with Confidence: {best_result[1]}")
+        return best_result[0]  # Return the digit with the highest confidence
+    else:
+        print("\nNo valid single digit found with confidence > 45")
+        return -1  # Return -1 if no valid digit is found
     
-    
-def image_to_letter(img):
+def image_to_letter(img, character):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Preprocessing
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
-    text = process_text(sharpened_image)
-    
-    return text
+    _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Select the most effective preprocessed image
+    # Based on experiments, sharpened or binary image is usually sufficient
+    processed_images = [sharpened_image, binary_image, blurred]
+
+    # Configuration for Tesseract
+    if character:
+        config = '--psm 10 -c tessedit_char_whitelist=0123456789'
+    else:
+        config = '--psm 10 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+    all_results = []
+
+    for image in processed_images:
+        # Process text with confidence
+        data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT, config=config)
+        texts = data['text']
+        confidences = data['conf']
+
+        for i, text in enumerate(texts):
+            if text.strip():  # Ignore empty strings
+                confidence = int(confidences[i])
+                # Check for valid single-digit or character and confidence > 40
+                if character and text.isdigit() and len(text) == 1 and confidence > 50:
+                    all_results.append((text, confidence))
+                elif not character and text.isalpha() and len(text) == 1 and confidence > 50:
+                    all_results.append((text, confidence))
+
+    # Find the result with the highest confidence
+    if all_results:
+        best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
+        return best_result[0]  # Return the character with the highest confidence
+    else:
+        return -1  # Return -1 if no valid result is found
+
 
 def change_res(cap,width,height):
     cap.set(3,width)
@@ -162,71 +229,71 @@ def input_text(image, text):
     
     return image
     
-    
-#########Testing#########
-img = cv2.imread(os.path.relpath('data/blanksquare.jpg'))
-image = input_text(img, 'A')
-plt.imshow(image)
-plt.show()
+if __name__ == '__main__':
+    #########Testing#########
+    img = cv2.imread(os.path.relpath('data/blanksquare.jpg'))
+    image = input_text(img, 'A')
+    plt.imshow(image)
+    plt.show()
 
-"""
-img = cv2.imread(os.path.relpath('data/video_k.jpg'))
-extract_number_test(img, "k")
-img = cv2.imread(os.path.relpath('data/video_5.jpg'))
-extract_number_test(img, 5)
-img = cv2.imread(os.path.relpath('data/video_1.jpg'))
-extract_number_test(img, "1")
-img = cv2.imread(os.path.relpath('data/video_m.jpg'))
-extract_number_test(img, "m")
-img = cv2.imread(os.path.relpath('data/video_k_1.jpg'))
-extract_number_test(img, "k1")
-img = cv2.imread(os.path.relpath('data/video_L.jpg'))
-extract_number_test(img, "L")
-img = cv2.imread(os.path.relpath('data/video_a.jpg'))
-extract_number_test(img, "a")
-img = cv2.imread(os.path.relpath('data/video_2.jpg'))
-extract_number_test(img, "2")
-img = cv2.imread(os.path.relpath('data/video_3.jpg'))
-extract_number_test(img, "3")
-img = cv2.imread(os.path.relpath('data/video_7.jpg'))
-extract_number_test(img, "7")
-img = cv2.imread(os.path.relpath('data/video_9.jpg'))
-extract_number_test(img, "9")
-"""
+    """
+    img = cv2.imread(os.path.relpath('data/video_k.jpg'))
+    extract_number_test(img, "k")
+    img = cv2.imread(os.path.relpath('data/video_5.jpg'))
+    extract_number_test(img, 5)
+    img = cv2.imread(os.path.relpath('data/video_1.jpg'))
+    extract_number_test(img, "1")
+    img = cv2.imread(os.path.relpath('data/video_m.jpg'))
+    extract_number_test(img, "m")
+    img = cv2.imread(os.path.relpath('data/video_k_1.jpg'))
+    extract_number_test(img, "k1")
+    img = cv2.imread(os.path.relpath('data/video_L.jpg'))
+    extract_number_test(img, "L")
+    img = cv2.imread(os.path.relpath('data/video_a.jpg'))
+    extract_number_test(img, "a")
+    img = cv2.imread(os.path.relpath('data/video_2.jpg'))
+    extract_number_test(img, "2")
+    img = cv2.imread(os.path.relpath('data/video_3.jpg'))
+    extract_number_test(img, "3")
+    img = cv2.imread(os.path.relpath('data/video_7.jpg'))
+    extract_number_test(img, "7")
+    img = cv2.imread(os.path.relpath('data/video_9.jpg'))
+    extract_number_test(img, "9")
+    """
 
-    
+        
 
-#Initialize the video capture (0 is the default webcam)
-""""
-cap = cv2.VideoCapture(0)
-win_name = "Live Text Detection"
-cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
+    #Initialize the video capture (0 is the default webcam)
+    """"
+    cap = cv2.VideoCapture(0)
+    win_name = "Live Text Detection"
+    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
 
 
-while True: # This code is taken from Homework 4
-    #Capture frame-by-frame
-    ret, frame = cap.read()
-    
-    if not ret:
-        break
+    while True: # This code is taken from Homework 4
+        #Capture frame-by-frame
+        ret, frame = cap.read()
+        
+        if not ret:
+            break
 
-    #Detect text and get bounding boxes and current frame words
-    boxes, current_frame_words = detect_text(frame)
+        #Detect text and get bounding boxes and current frame words
+        boxes, current_frame_words = detect_text(frame)
 
-    #Draw bounding boxes on the frame
-    draw_boxes(frame, boxes.splitlines())
+        #Draw bounding boxes on the frame
+        draw_boxes(frame, boxes.splitlines())
 
-    #Display the frame with bounding boxes
-    cv2.imshow(win_name, frame)
+        #Display the frame with bounding boxes
+        cv2.imshow(win_name, frame)
 
-    #Print the current words detected in the frame
-    print("Current words:", current_frame_words)
+        #Print the current words detected in the frame
+        print("Current words:", current_frame_words)
 
-    #Break the loop when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        #Break the loop when 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-#Release the capture when done
-cap.release()
-cv2.destroyAllWindows()
-"""
+    #Release the capture when done
+    cap.release()
+    cv2.destroyAllWindows()
+    """
