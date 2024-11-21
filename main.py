@@ -18,8 +18,6 @@ from LettersNumbers import extract_number_test
 from def_sudoku_solver import solve_sudoku
 
 
-
-
 if __name__ == '__main__':
     img = cv2.imread("testImage.png")
     
@@ -32,9 +30,9 @@ if __name__ == '__main__':
     for i in squares:
         #plt.imshow(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]])
         #plt.show()
-        #extract_number_test(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], "Blank", True)
-        text = image_to_letter(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], True)
-        print(text)
+        extract_number_test(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], "Blank", True)
+        #text = image_to_letter(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], True)
+        #print(text)
 
 
         

@@ -134,14 +134,26 @@ def extract_number_test(img, test, character):
 
     # Display preprocessing results
     plt.figure(figsize=(10, 10))
-    plt.subplot(1, 4, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
-    plt.subplot(1, 4, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
-    plt.subplot(1, 4, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
-    plt.subplot(1, 4, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
+    plt.subplot(1, 5, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
+    plt.subplot(1, 5, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
+    plt.subplot(1, 5, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
+    plt.subplot(1, 5, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
+
+    print(binary_image.shape)
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    intensity = np.mean(check_blank)
+    plt.subplot(1, 5, 5), plt.imshow(check_blank, cmap='gray'), plt.title('Intensity')
     plt.show()
-
+    
+    print(f"Intensity {intensity}")
+    if intensity == 255:
+        print("\nNo Letter")
+        return -1
+    
+    
     print(f"\nStart Test {test}")
-
     all_results = []
     if character:
         config = '--psm 10 -c tessedit_char_whitelist=0123456789'
@@ -156,16 +168,17 @@ def extract_number_test(img, test, character):
         for text, confidence in results:
             print(f"  Text: {text}, Confidence: {confidence}")
             # Filter for single digits and confidence > 50
-            if text.isdigit() and len(text) == 1 and confidence > 50:
+            if len(text) == 1: #and confidence > 50:
                 all_results.append((text, confidence))
 
     # Find the result with the highest confidence
-    if all_results:
+    #if all_results:
+    if len(all_results) != 0:
         best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
         print(f"\nBest Single Digit: {best_result[0]} with Confidence: {best_result[1]}")
         return best_result[0]  # Return the digit with the highest confidence
     else:
-        print("\nNo valid single digit found with confidence > 45")
+        print("\nCould Not Detect Character")
         return -1  # Return -1 if no valid digit is found
     
 def image_to_letter(img, character):
@@ -176,10 +189,12 @@ def image_to_letter(img, character):
     blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
     _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
+    
     # Select the most effective preprocessed image
     # Based on experiments, sharpened or binary image is usually sufficient
     processed_images = [sharpened_image, binary_image, blurred]
+    
+
 
     # Configuration for Tesseract
     if character:
@@ -199,9 +214,9 @@ def image_to_letter(img, character):
             if text.strip():  # Ignore empty strings
                 confidence = int(confidences[i])
                 # Check for valid single-digit or character and confidence > 40
-                if character and text.isdigit() and len(text) == 1 and confidence > 50:
+                if character and text.isdigit() and len(text) == 1 and confidence > 30:
                     all_results.append((text, confidence))
-                elif not character and text.isalpha() and len(text) == 1 and confidence > 50:
+                elif not character and text.isalpha() and len(text) == 1 and confidence > 30:
                     all_results.append((text, confidence))
 
     # Find the result with the highest confidence
