@@ -5,26 +5,12 @@ import numpy as np
 import pytesseract
 import re
 from imutils import contours
+from multiprocessing import Pool
 
 
 #PyTesseract Lib https://pypi.org/project/pytesseract/
 #Tesseract https://tesseract-ocr.github.io/tessdoc/Installation.html
 #https://gist.github.com/qgolsteyn/7da376ced650a2894c2432b131485f5d
-
-#Introduction: SO far the code works well in identifing words like "computer" and "babies", however it 
-#doesn't work as well with identifying singel letters and numbers. The todo's will hopefully improve results. 
-
-#Progress: Currently, we can detect letter and numbers frame by frame with low accuarcy with the detect_text funtion, 
-#but its a start. The functoin also returns the box coordinates of each detected letter/number
-#Additionally, a function that can draw a box around a detected letter/number => good for debugging in future work
-
-#Problems: Sadly, LOTS. The frame by frame capture is very inconsistent in that every frame will detect different 
-#words everytime, and can't detect letters very far away in the image.
-
-
-#TODO: Identify single boxes in word search. Currently we have the grid without any numbers. My inital thinking was to then identify each 
-#TODO: individual cell, and use pytesseract to identify the number/letter.
-#TODO: Make it work better lol. Suggestions, feedback, and maybe even converting to more suceesfull method(trying something new) is appreciated!
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -123,6 +109,7 @@ def process_text_with_confidence(image, config):
 
     return results
 
+#This function is used for testing
 def extract_number_test(img, test, character):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -190,48 +177,56 @@ def image_to_letter(img, character):
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
     _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    intensity = np.mean(check_blank)
+    if intensity == 255:
+        return -1
+    
     # Select the most effective preprocessed image
     # Based on experiments, sharpened or binary image is usually sufficient
-    processed_images = [sharpened_image, binary_image, blurred]
+    processed_images = [denoised_image, binary_image, blurred]
     
-
-
-    # Configuration for Tesseract
+    all_results = []
     if character:
         config = '--psm 10 -c tessedit_char_whitelist=0123456789'
     else:
         config = '--psm 10 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
-    all_results = []
-
     for image in processed_images:
-        # Process text with confidence
-        data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT, config=config)
-        texts = data['text']
-        confidences = data['conf']
-
-        for i, text in enumerate(texts):
-            if text.strip():  # Ignore empty strings
-                confidence = int(confidences[i])
-                # Check for valid single-digit or character and confidence > 40
-                if character and text.isdigit() and len(text) == 1 and confidence > 30:
-                    all_results.append((text, confidence))
-                elif not character and text.isalpha() and len(text) == 1 and confidence > 30:
-                    all_results.append((text, confidence))
+        results = process_text_with_confidence(image, config)
+        for text, confidence in results:
+            # Filter for single digits and confidence > 50
+            if len(text) == 1: #and confidence > 50:
+                all_results.append((text, confidence))
 
     # Find the result with the highest confidence
-    if all_results:
+    #if all_results:
+    if len(all_results) != 0:
         best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
-        return best_result[0]  # Return the character with the highest confidence
+        return best_result[0]  # Return the digit with the highest confidence
     else:
-        return -1  # Return -1 if no valid result is found
+        return -1  # Return -1 if no valid digit is found
+    
+def process_image(args):
+    img, char = args
+    return image_to_letter(img, char)
 
+def images_to_strings(images, character):
+    
+    # Create arguments for each image
+    args_list = [(img, character) for img in images]
+    
+    # Use multiprocessing Pool to process images in parallel
+    with Pool() as pool:
+        results = pool.map(process_image, args_list)
+    
+    return results
+    
 
 def change_res(cap,width,height):
     cap.set(3,width)
     cap.set(4,height)
-    
-    
     
 def input_text(image, text):
     position = (image.shape[1]//2, image.shape[0]//2)  # (x, y) coordinates of the text
