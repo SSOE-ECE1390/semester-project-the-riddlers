@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def threshold_paper(contours):
+def threshold_paper(img):
 
         #image preprocessing 
     img = cv2.imread('testImage.png') 
