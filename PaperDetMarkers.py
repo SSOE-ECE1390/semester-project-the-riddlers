@@ -43,7 +43,7 @@ def paper_markers(img):
 
     roi = img[y:y+h,x:x+w]
 
-    return roi
+    return roi, (x,y,w,h)
 
 if __name__=='__main__':
     img = cv2.imread('PaperMarkers2.jpg')
