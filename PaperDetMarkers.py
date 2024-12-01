@@ -8,7 +8,6 @@ from packaging import version  # Installed with setuptools, so should already be
 
 def paper_markers(img):
 
-    img = cv2.imread('PaperMarkers2.jpg')
 
     if version.parse(cv2.__version__) >= version.parse("4.7.0"):
         dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_1000)
@@ -39,9 +38,15 @@ def paper_markers(img):
 
     rect2 = cv2.minAreaRect(polygon) #find smallest possible rectangle to bind contour
     box = cv2.boxPoints(rect2)
-    box = np.int0(box)
+    box = np.intp(box)
     img = cv2.drawContours(img,[box],0,(0,0,255),2)
 
     roi = img[y:y+h,x:x+w]
 
     return roi
+
+if __name__=='__main__':
+    img = cv2.imread('PaperMarkers2.jpg')
+    plt.imshow(paper_markers(img))
+    plt.show()
+
