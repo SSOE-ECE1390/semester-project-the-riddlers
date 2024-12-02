@@ -6,6 +6,7 @@ import pytesseract
 import re
 from imutils import contours
 from multiprocessing import Pool
+import easyocr
 
 
 #PyTesseract Lib https://pypi.org/project/pytesseract/
@@ -109,6 +110,7 @@ def process_text_with_confidence(image, config):
 
     return results
 
+
 #This function is used for testing
 def extract_number_test(img, test, character):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -150,9 +152,13 @@ def extract_number_test(img, test, character):
                              ("Blurred", blurred), 
                              ("Sharpened", sharpened_image), 
                              ("Binary", binary_image)]:
-        results = process_text_with_confidence(image, config)
+        reader = easyocr.Reader(["en"])
+        results = reader.readtext(image)
+        if results is None:
+            print("No results returned by OCR.")
+            continue
         print(f"{step_name} Image Results:")
-        for text, confidence in results:
+        for (bbox, text, confidence) in results:
             print(f"  Text: {text}, Confidence: {confidence}")
             # Filter for single digits and confidence > 50
             if len(text) == 1: #and confidence > 50:
@@ -198,6 +204,43 @@ def image_to_letter(img, character):
         for text, confidence in results:
             # Filter for single digits and confidence > 50
             if len(text) == 1: #and confidence > 50:
+                all_results.append((text, confidence))
+
+    # Find the result with the highest confidence
+    #if all_results:
+    if len(all_results) != 0:
+        best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
+        return best_result[0]  # Return the digit with the highest confidence
+    else:
+        return -1  # Return -1 if no valid digit is found
+    
+def image_to_letter_easyocr(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    reader = easyocr.Reader(["en"])
+    
+    # Preprocessing
+    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
+    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
+    _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    intensity = np.mean(check_blank)
+    if intensity == 255:
+        return -1
+    
+    # Select the most effective preprocessed image
+    # Based on experiments, sharpened or binary image is usually sufficient
+    processed_images = [blurred, denoised_image]
+    
+    all_results = []
+    for image in processed_images:
+        results = reader.readtext(image)
+        for (bbox, text, confidence) in results:
+            # Filter for single digits and confidence > 50
+            if len(text) == 1 and confidence > 50:
                 all_results.append((text, confidence))
 
     # Find the result with the highest confidence
