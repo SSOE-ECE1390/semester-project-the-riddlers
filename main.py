@@ -76,12 +76,12 @@ def process_squares_parallel(frame, squares, character):
 if __name__ == '__main__':
     """
     ###########Image Testing###########
-    img = cv2.imread("testImage.png")
+    img = cv2.imread("PaperMarkers2.jpg")
     myImage = img.copy()
     # in order to use, run preprocessing function
-    linesP = preprocessing(myImage)
+    img, (x,y,w,h) = PaperDetMarkers.paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
-    squares = getSquares(linesP)
+    squares = getSquares.getSquares(img, x, y, w, h)
     
     images_2 = [None for _ in range(len(squares))]
         
