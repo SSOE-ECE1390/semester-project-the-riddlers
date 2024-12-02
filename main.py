@@ -14,7 +14,7 @@ from sklearn.cluster import KMeans
 from getSquares import preprocessing
 from getSquares import getSquares
 from LettersNumbers import image_to_letter
-from LettersNumbers import images_to_strings
+from LettersNumbers import images_to_strings, images_to_strings_easyocr
 from LettersNumbers import extract_number_test
 from def_sudoku_solver import solve_sudoku
 from PaperDetMarkers import paper_markers
@@ -76,7 +76,7 @@ def process_squares_parallel(frame, squares, character):
 
 if __name__ == '__main__':
     ###########Image Testing###########
-    img = cv2.imread("PaperMarkers2.jpg")
+    img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
     myImage = img.copy()
     # in order to use, run preprocessing function
     img, (x,y,w,h) = paper_markers(myImage)

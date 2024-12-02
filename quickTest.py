@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 if __name__=='__main__':
-    img = cv2.imread('PaperMarkers2.jpg')
+    img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
     myImage = img.copy()
     img, (x,y,w,h) = PaperDetMarkers.paper_markers(img)
     plt.imshow(img)

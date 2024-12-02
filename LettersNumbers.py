@@ -255,6 +255,21 @@ def process_image(args):
     img, char = args
     return image_to_letter(img, char)
 
+def process_image_easyocr(args):
+    img, char = args
+    return image_to_letter_easyocr(img)
+
+def images_to_strings_easyocr(images, character):
+    
+    # Create arguments for each image
+    args_list = [(img, character) for img in images]
+    
+    # Use multiprocessing Pool to process images in parallel
+    with Pool() as pool:
+        results = pool.map(process_image_easyocr, args_list)
+    
+    return results
+
 def images_to_strings(images, character):
     
     # Create arguments for each image
