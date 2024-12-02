@@ -14,7 +14,7 @@ import easyocr
 #https://gist.github.com/qgolsteyn/7da376ced650a2894c2432b131485f5d
 
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 
 
 #Function to validate if the detected text is a real word or number (make sure there is no &*()^ etc)
@@ -288,6 +288,9 @@ if __name__ == '__main__':
     image = input_text(img, 'A')
     plt.imshow(image)
     plt.show()
+
+    img = cv2.imread(os.path.relpath('data/video_k.jpg'))
+    process_text_with_confidence(img, "k")
 
     """
     img = cv2.imread(os.path.relpath('data/video_k.jpg'))

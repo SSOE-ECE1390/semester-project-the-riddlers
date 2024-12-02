@@ -17,6 +17,7 @@ from LettersNumbers import image_to_letter
 from LettersNumbers import images_to_strings
 from LettersNumbers import extract_number_test
 from def_sudoku_solver import solve_sudoku
+from PaperDetMarkers import paper_markers
 
 #Converts a singe array of anysize above 81 to a 9x9 array
 def single_to_double_column_first(single_array):
@@ -74,14 +75,13 @@ def process_squares_parallel(frame, squares, character):
 
 
 if __name__ == '__main__':
-    """
     ###########Image Testing###########
     img = cv2.imread("PaperMarkers2.jpg")
     myImage = img.copy()
     # in order to use, run preprocessing function
-    img, (x,y,w,h) = PaperDetMarkers.paper_markers(myImage)
+    img, (x,y,w,h) = paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
-    squares = getSquares.getSquares(img, x, y, w, h)
+    squares = getSquares(img, x, y, w, h)
     
     images_2 = [None for _ in range(len(squares))]
         
@@ -96,7 +96,8 @@ if __name__ == '__main__':
     solved = solve_sudoku(double_text)
     print(f"Solved: {solved}")
     print(double_text)
-    """
+    exit(0)
+
     #########Video Testing#############
     
     cap = cv2.VideoCapture(0)
