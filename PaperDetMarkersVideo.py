@@ -46,7 +46,7 @@ def paper_markers(img):
 
             rect2 = cv2.minAreaRect(polygon) #find smallest possible rectangle to bind contour
             box = cv2.boxPoints(rect2)
-            box = np.int0(box)
+            box = np.intp(box)
             img = cv2.drawContours(img,[box],0,(0,0,255),2)
 
             roi = img[y:y+h,x:x+w]
@@ -59,7 +59,7 @@ def paper_markers(img):
         marker_detected = False
         roi = img
 
-    return marker_detected,roi
+    return marker_detected,roi, (x,y,w,h)
 
 
 if __name__=='__main__':
