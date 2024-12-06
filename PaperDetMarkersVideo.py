@@ -42,12 +42,12 @@ def paper_markers(img):
             polygon = np.array(polygon_pts,np.int32).reshape((-1,1,2))
 
             x,y,w,h = cv2.boundingRect(polygon) #find rectangle that bounds the contour
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+            #cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
             rect2 = cv2.minAreaRect(polygon) #find smallest possible rectangle to bind contour
             box = cv2.boxPoints(rect2)
             box = np.intp(box)
-            img = cv2.drawContours(img,[box],0,(0,0,255),2)
+            #img = cv2.drawContours(img,[box],0,(0,0,255),2)
 
             roi = img[y:y+h,x:x+w]
 

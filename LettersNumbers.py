@@ -210,7 +210,7 @@ def image_to_letter(img, character):
     #if all_results:
     if len(all_results) != 0:
         best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
-        return best_result[0]  # Return the digit with the highest confidence
+        return best_result[0], best_result[1]  # Return the digit with the highest confidence
     else:
         return -1  # Return -1 if no valid digit is found
     

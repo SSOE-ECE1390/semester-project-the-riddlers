@@ -1,6 +1,7 @@
 from PaperDetMarkersVideo import paper_markers
 from getSquares import getSquares
 import cv2
+import numpy as np
 import matplotlib.pyplot as plt
 import os
 
@@ -10,7 +11,11 @@ def input_text(image, topleft, bottomright, text):
     bottom = bottomright[0]
     left = topleft[1]
     right = bottomright[1]
-    position = ((right+left)//2, (bottom+top)//2)
+    print(top)
+    print(bottom)
+    print(left)
+    print(right)
+    position = ((bottom+top)//2, (right+left)//2)
     #position = (image.shape[1]//2, image.shape[0]//2)  # (x, y) coordinates of the text
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1
@@ -22,15 +27,43 @@ def input_text(image, topleft, bottomright, text):
     return image
 
 def render(img, solvedPuzzle):
-    plt.imshow(img)
-    plt.show()
+    myRender = img.copy()
     markers_detected, roi, (x,y,w,h) = paper_markers(img)
-    plt.imshow(roi)
-    plt.show()
     squares = getSquares(roi, x,y,w,h)
-    input_text(img, squares[0][0], squares[0][1], str(5))
-    return True
+    for pos,i in enumerate(squares):
+        input_text(img,i[0], i[1], str(solvedPuzzle[pos]))
+    return myRender
 
 if __name__=='__main__':
     img = cv2.imread(r"WIN_20241202_17_10_41_Pro.jpg")
-    render(img, "this shit")
+    myRender = img.copy()
+    solvedPuzzle=[[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]]
+    solvedPuzzle = np.array(solvedPuzzle).T.flatten()
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    render(myRender, solvedPuzzle)
+    out = render(myRender, solvedPuzzle)
+    plt.imshow(out)
+    plt.show()
+    print("here")
+    exit(0)

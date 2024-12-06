@@ -18,6 +18,7 @@ from LettersNumbers import images_to_strings, images_to_strings_easyocr
 from LettersNumbers import extract_number_test
 from def_sudoku_solver import solve_sudoku
 from PaperDetMarkers import paper_markers
+from render import render
 
 #Converts a singe array of anysize above 81 to a 9x9 array
 def single_to_double_column_first(single_array):
@@ -79,9 +80,9 @@ if __name__ == '__main__':
     img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
     myImage = img.copy()
     # in order to use, run preprocessing function
-    img, (x,y,w,h) = paper_markers(myImage)
+    roi, (x,y,w,h) = paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
-    squares = getSquares(img, x, y, w, h)
+    squares = getSquares(roi, x, y, w, h)
     
     images_2 = [None for _ in range(len(squares))]
         
@@ -96,6 +97,7 @@ if __name__ == '__main__':
     solved = solve_sudoku(double_text)
     print(f"Solved: {solved}")
     print(double_text)
+    render(img, np.array(double_text).T.flatten())
     exit(0)
 
     #########Video Testing#############
