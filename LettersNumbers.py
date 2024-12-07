@@ -14,7 +14,7 @@ import easyocr
 #https://gist.github.com/qgolsteyn/7da376ced650a2894c2432b131485f5d
 
 
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 #Function to validate if the detected text is a real word or number (make sure there is no &*()^ etc)

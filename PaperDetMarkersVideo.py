@@ -52,13 +52,20 @@ def paper_markers(img):
             roi = img[y:y+h,x:x+w]
 
         else:
+           x = -1
+           y = -1
+           w = -1
+           h = -1
            marker_detected = False
            roi = img 
 
     else:
+        x = -1
+        y = -1
+        w = -1
+        h = -1
         marker_detected = False
         roi = img
-
     return marker_detected,roi, (x,y,w,h)
 
 

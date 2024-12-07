@@ -95,6 +95,7 @@ def preprocessing(img):
 
     
     linesP = cv2.HoughLinesP(lines, 1, np.pi / 180, 50, None, 400, 20)
+    print(linesP)
     
     return linesP
 
@@ -121,6 +122,8 @@ def calcIntercept(line1, line2):
 
 def getSquares(img, x, y, w, h):
     lines = preprocessing(img)
+    if type(lines) == type(None):
+        return -1
     verticalLines = []
     horizontalLines = []
     for i in lines:
@@ -160,7 +163,7 @@ def getSquares(img, x, y, w, h):
 
     verticalLines.sort(key=lambda x:x[0])
     horizontalLines.sort(key=lambda x:x[1])
-    print(verticalLines)
+    #print(verticalLines)
     verticalPoints = np.array(verticalLines)[:,0]
     horizontalPoints = np.array(horizontalLines)[:,1]
     verticalGroups = [[]]

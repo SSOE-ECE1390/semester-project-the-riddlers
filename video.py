@@ -3,31 +3,106 @@ from time import sleep
 import numpy as np
 import threading
 from PaperDetMarkersVideo import paper_markers
-from solve import solve
+from solve import solve, solveSimple
+import matplotlib.pyplot as plt
+
+def exitProgram(cap, code=0):
+    cap.release()
+    cv2.destroyAllWindows()
+    exit(code)
+
+def renderLoop(frame, inputFrame):
+    cap = cv2.VideoCapture(0, cv2.CAP_MSMF)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)
+    cap.set(cv2.CAP_PROP_FPS, 30)
+    while True:
+        ret, frame[0] = cap.read()
+        if not ret:
+            exitProgram(cap, -1)
+        if type(inputFrame[0])==type(None):
+            cv2.imshow('frame', frame[0])
+        else:
+            cv2.imshow('frame', inputFrame[0])
+        if cv2.waitKey(1) == ord('q'):
+            exitProgram(cap)
+
+def doThings(frame):
+    while type(frame[0])==type(None):
+        None
+    print(frame)
+    double_text = []
+    avgConfidence = []
+    solved = []
+    for i in range(0,30):
+        #ret, frame = cap.read()
+        #cv2.imshow('frame', frame)
+        #if cv2.waitKey(1) == ord('q'):
+        #    exitProgram(cap)
+        curFrame = frame[0]
+        out = solveSimple(curFrame)
+        if out==-1:
+            continue
+        double_text.append(out[0])
+        avgConfidence.append(out[1])
+        solved.append(out[2])
+        print(out[0])
+        #double_text.append([None])
+        #avgConfidence.append([None])
+        #solved.append([None])
+        #threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
+        #threadPool[i].start()
+    
+    print(avgConfidence)
+    print(double_text)
+    print(solved)
+
 
 if __name__=='__main__':
+    frame = [None]
+    inputFrame = [None]
+    renderThread = threading.Thread(target=renderLoop, args=(frame,inputFrame))
+    renderThread.start()
+    #renderLoop(frame)
+    doThings(frame)
+    exit(0)
     #first we need to detect the paper
-    cap = cv2.VideoCapture(0)
-    ret, frame = cap.read()
-    if not ret:
-        exit(-1)
-    markers_detected, roi, (x,y,w,h) = paper_markers(frame)
-    sleep(1s)
+    # this works
+    #cap = cv2.VideoCapture(0)
+    #markers_detected = False
+    #while not markers_detected:
+    #    ret, frame = cap.read()
+    #    print("here")
+    #    if not ret:
+    #        exitProgram(cap, -1)
+    #    cv2.imshow('frame', frame)
+    #    markers_detected, roi, (x,y,w,h) = paper_markers(frame)
+    #    if cv2.waitKey(1) == ord('q'):
+    #        exitProgram(cap)
+    #sleep(1)
     double_text = []
     avgConfidence = []
     solved = []
     threadPool = []
     for i in range(0,30):
-        frame = cap.read()
+        #ret, frame = cap.read()
+        #cv2.imshow('frame', frame)
+        #if cv2.waitKey(1) == ord('q'):
+        #    exitProgram(cap)
+        frame = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
 
-        double_text.append([None])
-        avgConfidence.append([None])
-        solved.append([None])
-        threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
+        solve(frame, double_text[i],avgConfidence[i],solved[i])
+        #double_text.append([None])
+        #avgConfidence.append([None])
+        #solved.append([None])
+        #threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
+        #threadPool[i].start()
     
-    for i in threadPool:
-        i.join()
     print(avgConfidence)
+    print(double_text)
+    print(solved)
+    #cap.release()
+    cv2.destroyAllWindows()
     #upon detecting the paper
         # wait 1s
         # attempt to solve the paper 30 times
