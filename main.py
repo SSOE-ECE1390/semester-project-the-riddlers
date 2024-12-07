@@ -45,20 +45,20 @@ def process_squares(squares, frame):
     for i in squares:
         #plt.imshow(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]])
         #plt.show()
-        #extract_number_test(myImage[i[0S][1]:i[1][1], i[0][0]:i[1][0]], "Blank", True)
-        text = image_to_letter(frame[i[0][1]:i[1][1], i[0][0]:i[1][0]], True)
+        extract_number_test(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], "Blank", True)
+    #     text = image_to_letter(frame[i[0][1]:i[1][1], i[0][0]:i[1][0]], True)
             
-        result_array[row_index][column_index] = text
-        row_index += 1
+    #     result_array[row_index][column_index] = text
+    #     row_index += 1
             
-        if row_index == 9:  # Move to the next column after filling 8 rows
-            row_index = 0
-            column_index += 1
+    #     if row_index == 9:  # Move to the next column after filling 8 rows
+    #         row_index = 0
+    #         column_index += 1
             
-        # Stop if we fill the array
-        if column_index == 9:
-            break
-    return result_array
+    #     # Stop if we fill the array
+    #     if column_index == 9:
+    #         break
+    # return result_array
 
 def process_squares_parallel(frame, squares, character):
     
@@ -78,24 +78,41 @@ def process_squares_parallel(frame, squares, character):
     
 def process_ml_model(squares):
     
-    model = train(True)
+    model = train(False)
     
     digits = []
     for i in squares:
-        digit = decode(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], model)
-        digits.append(digit)
+        image = myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]]
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, binary_image = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        center_x = binary_image.shape[0]//2
+        center_y = binary_image.shape[1]//2
+        check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+        intensity = np.mean(check_blank)
+        if intensity == 255:
+            print("Empty")
+            digits.append('-1')
+        else:
+            h, w = gray.shape[:2]
+            if h > 10 and w > 10:  # Ensure dimensions are sufficient
+                gray = gray[10:h-10, 10:w-10]
+            digit = decode(gray, model)
+            print(f"Detected Digit:{digit}")
+            digits.append(digit)
         
     return digits
 
 
 if __name__ == '__main__':
     ###########Image Testing###########
-    img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
+    img = cv2.imread("WIN_20241202_17_09_07_Pro.jpg")
     myImage = img.copy()
     # in order to use, run preprocessing function
     roi, (x,y,w,h) = paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
     squares = getSquares(roi, x, y, w, h)
+    
+    process_squares(squares, img)
     
     images_2 = [None for _ in range(len(squares))]
         
