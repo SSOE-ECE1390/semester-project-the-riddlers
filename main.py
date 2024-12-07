@@ -19,6 +19,8 @@ from LettersNumbers import extract_number_test
 from def_sudoku_solver import solve_sudoku
 from PaperDetMarkers import paper_markers
 from render import render
+from letterdetection import decode
+from letterdetection import train
 
 #Converts a singe array of anysize above 81 to a 9x9 array
 def single_to_double_column_first(single_array):
@@ -73,6 +75,17 @@ def process_squares_parallel(frame, squares, character):
     solved = solve_sudoku(double_text)
     print(f"Solved: {solved}")
     print(double_text)
+    
+def process_ml_model(squares):
+    
+    model = train(True)
+    
+    digits = []
+    for i in squares:
+        digit = decode(myImage[i[0][1]:i[1][1], i[0][0]:i[1][0]], model)
+        digits.append(digit)
+        
+    return digits
 
 
 if __name__ == '__main__':
