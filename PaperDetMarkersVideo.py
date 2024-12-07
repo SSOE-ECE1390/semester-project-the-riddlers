@@ -9,35 +9,36 @@ from packaging import version  # Installed with setuptools, so should already be
 
 def paper_markers(img):
 
-    #img = cv2.imread(img)
+    #initialize no paper in frame
     marker_detected = False
 
+    #depending on version cv2, detect aruco markers
     if version.parse(cv2.__version__) >= version.parse("4.7.0"):
         dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_1000)
         detectorParams = cv2.aruco.DetectorParameters()
         detector = cv2.aruco.ArucoDetector(dictionary, detectorParams)
-        corners, ids, rejected = detector.detectMarkers(img)
+        corners, ids, rejected = detector.detectMarkers(img) #detect aruco markers
     else:
         dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_1000)
         detectorParams = cv2.aruco.DetectorParameters_create()
         corners, ids, rejected = cv2.aruco.detectMarkers(
             img, dictionary, parameters=detectorParams
-        )
+        ) #detect aruco markers
 
     if ids is not None:
-        marker_detected = True
+        marker_detected = True #return true when markers are detected in video frame
 
         polygon_pts = []
 
-        if len(ids) == 4: 
+        if len(ids) == 4: #only carry out code if 4 markers are detected
 
             for i in range(len(ids)):
 
-                marker_corners = corners[i][0]
+                marker_corners = corners[i][0] #extract corners of each aruco marker
 
                 for corner in np.nditer(marker_corners):
 
-                    polygon_pts.append(corner)
+                    polygon_pts.append(corner) #append corners of markers to an array
 
             polygon = np.array(polygon_pts,np.int32).reshape((-1,1,2))
 
@@ -49,7 +50,7 @@ def paper_markers(img):
             box = np.intp(box)
             #img = cv2.drawContours(img,[box],0,(0,0,255),2)
 
-            roi = img[y:y+h,x:x+w]
+            roi = img[y:y+h,x:x+w] #extract roi of just the paper
 
         else:
            x = -1
