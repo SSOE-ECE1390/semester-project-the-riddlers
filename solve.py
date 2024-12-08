@@ -24,7 +24,7 @@ def solveSimple(myImage):
     myImage = myImage.copy()
     markers_detected, roi, (x,y,w,h) = paper_markers(myImage)
     if not markers_detected:
-        return -1
+        return -2
     # send output of preprocessing function to getSquares to get list of rectangles
     squares = getSquares(roi, x, y, w, h)
     if squares==-1:
@@ -54,10 +54,19 @@ def solveSimple(myImage):
     #print(double_text)
     
     solved = solve_sudoku(double_text)
+    if not solved:
+        return -3
+    print(solved)
+    print(double_text)
     #print(double_text)
     avgConfidence = np.mean(confidences)
     return double_text, avgConfidence, solved
 
+def assumedSolved(myImage):
+    double_text = [[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]]
+    avgConfidence = 0
+    solved=True
+    return double_text, avgConfidence, solved
 
 
 def solve(myImage, double_text, avgConfidence, solved):
@@ -68,6 +77,9 @@ def solve(myImage, double_text, avgConfidence, solved):
     roi, (x,y,w,h) = paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
     squares = getSquares(roi, x, y, w, h)
+    
+    if squares==-1:
+        return -1
     
     images_2 = [None for _ in range(len(squares))]
         
@@ -98,7 +110,7 @@ def solve(myImage, double_text, avgConfidence, solved):
 if __name__=='__main__':
     img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
     double_text = [[None]]
-    print(solve(img, double_text, [None], [None]))
+    print(solveSimple(img))
     print(double_text)
 
 

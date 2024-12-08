@@ -27,11 +27,25 @@ def input_text(image, topleft, bottomright, text):
     return image
 
 def render(img, solvedPuzzle):
+    print(solvedPuzzle)
+    print("Above is the solved Puzzle")
     myRender = img.copy()
     markers_detected, roi, (x,y,w,h) = paper_markers(img)
+    if not markers_detected:
+        return -1
     squares = getSquares(roi, x,y,w,h)
-    for pos,i in enumerate(squares):
-        input_text(img,i[0], i[1], str(solvedPuzzle[pos]))
+    if squares == -1:
+        return -1
+    for i in squares:
+        myRender = cv2.rectangle(myRender, i[0], i[1], (255,0,0), 3)
+    for i in range(0, 81 if len(squares) >= 81 else len(squares)):
+        input_text(myRender,squares[i][0], squares[i][1], str(solvedPuzzle[i]))
+
+    #for pos,i in enumerate(squares):
+    #    input_text(img,i[0], i[1], str(solvedPuzzle[pos]))
+
+    #for pos,i in enumerate(squares):
+    #    input_text(img,i[0], i[1], str(solvedPuzzle[pos]))
     return myRender
 
 if __name__=='__main__':

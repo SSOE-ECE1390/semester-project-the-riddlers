@@ -3,8 +3,9 @@ from time import sleep
 import numpy as np
 import threading
 from PaperDetMarkersVideo import paper_markers
-from solve import solve, solveSimple
+from solve import solve, solveSimple, assumedSolved
 import matplotlib.pyplot as plt
+from render import render
 
 def exitProgram(cap, code=0):
     cap.release()
@@ -16,6 +17,7 @@ def renderLoop(frame, inputFrame):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)
     cap.set(cv2.CAP_PROP_FPS, 30)
+    cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     while True:
         ret, frame[0] = cap.read()
         if not ret:
@@ -27,35 +29,47 @@ def renderLoop(frame, inputFrame):
         if cv2.waitKey(1) == ord('q'):
             exitProgram(cap)
 
-def doThings(frame):
-    while type(frame[0])==type(None):
-        None
-    print(frame)
-    double_text = []
-    avgConfidence = []
-    solved = []
-    for i in range(0,30):
-        #ret, frame = cap.read()
-        #cv2.imshow('frame', frame)
-        #if cv2.waitKey(1) == ord('q'):
-        #    exitProgram(cap)
-        curFrame = frame[0]
-        out = solveSimple(curFrame)
-        if out==-1:
-            continue
-        double_text.append(out[0])
-        avgConfidence.append(out[1])
-        solved.append(out[2])
-        print(out[0])
-        #double_text.append([None])
-        #avgConfidence.append([None])
-        #solved.append([None])
-        #threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
-        #threadPool[i].start()
-    
-    print(avgConfidence)
-    print(double_text)
-    print(solved)
+def doThings(frame, outputFrame):
+    while True:
+        while type(frame[0])==type(None):
+            None
+        double_text = []
+        avgConfidence = []
+        solved = []
+        i=0
+        while(i<5):
+            i+=1
+            #ret, frame = cap.read()
+            #cv2.imshow('frame', frame)
+            #if cv2.waitKey(1) == ord('q'):
+            #    exitProgram(cap)
+            curFrame = frame[0]
+            out = assumedSolved(curFrame)
+            if out==-1:
+                i-=1
+                continue
+            if out==-2:
+                i-=1
+                continue
+            if out==-3:
+                i-=1
+                continue
+            double_text.append(out[0])
+            avgConfidence.append(out[1])
+            solved.append(out[2])
+            #double_text.append([None])
+            #avgConfidence.append([None])
+            #solved.append([None])
+            #threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
+            #threadPool[i].start()
+        
+        img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
+        while True:
+            out = render(frame[0], np.array(double_text[0]).T.flatten())
+            if type(out)==type(-1) and out==-1:
+                print("We are failing")
+                break
+            outputFrame[0] = out
 
 
 if __name__=='__main__':
@@ -64,7 +78,7 @@ if __name__=='__main__':
     renderThread = threading.Thread(target=renderLoop, args=(frame,inputFrame))
     renderThread.start()
     #renderLoop(frame)
-    doThings(frame)
+    doThings(frame, inputFrame)
     exit(0)
     #first we need to detect the paper
     # this works

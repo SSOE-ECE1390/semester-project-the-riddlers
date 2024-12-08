@@ -164,8 +164,13 @@ def getSquares(img, x, y, w, h):
     verticalLines.sort(key=lambda x:x[0])
     horizontalLines.sort(key=lambda x:x[1])
     #print(verticalLines)
-    verticalPoints = np.array(verticalLines)[:,0]
-    horizontalPoints = np.array(horizontalLines)[:,1]
+    try:
+        verticalPoints = np.array(verticalLines)[:,0]
+        horizontalPoints = np.array(horizontalLines)[:,1]
+    except:
+        print(verticalLines)
+        print(horizontalLines)
+        return -1
     verticalGroups = [[]]
     verticalGroups[0].append(verticalLines[0])
     pos = 0
