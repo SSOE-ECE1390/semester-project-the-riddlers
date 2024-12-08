@@ -122,22 +122,39 @@ def extract_number_test(img, test, character):
     _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     # Display preprocessing results
-    plt.figure(figsize=(10, 10))
-    plt.subplot(1, 5, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
-    plt.subplot(1, 5, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
-    plt.subplot(1, 5, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
-    plt.subplot(1, 5, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
-
     print(binary_image.shape)
     center_x = binary_image.shape[0]//2
     center_y = binary_image.shape[1]//2
     check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     intensity = np.mean(check_blank)
+
+    center_x = denoised_image.shape[0]//2
+    center_y = denoised_image.shape[1]//2
+    denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = blurred.shape[0]//2
+    center_y = blurred.shape[1]//2
+    blurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = sharpened_image.shape[0]//2
+    center_y = sharpened_image.shape[1]//2
+    sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    
+    plt.figure(figsize=(10, 10))
+    plt.subplot(1, 5, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
+    plt.subplot(1, 5, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
+    plt.subplot(1, 5, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
+    plt.subplot(1, 5, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
     plt.subplot(1, 5, 5), plt.imshow(check_blank, cmap='gray'), plt.title('Intensity')
     plt.show()
     
     print(f"Intensity {intensity}")
-    if intensity == 255:
+    if intensity > 250:
         print("\nNo Letter")
         return -1
     
@@ -152,13 +169,12 @@ def extract_number_test(img, test, character):
                              ("Blurred", blurred), 
                              ("Sharpened", sharpened_image), 
                              ("Binary", binary_image)]:
-        reader = easyocr.Reader(["en"])
-        results = reader.readtext(image)
+        results = process_text_with_confidence(image, config)
         if results is None:
             print("No results returned by OCR.")
             continue
         print(f"{step_name} Image Results:")
-        for (bbox, text, confidence) in results:
+        for text, confidence in results:
             print(f"  Text: {text}, Confidence: {confidence}")
             # Filter for single digits and confidence > 50
             if len(text) == 1: #and confidence > 50:
@@ -187,12 +203,34 @@ def image_to_letter(img, character):
     center_y = binary_image.shape[1]//2
     check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     intensity = np.mean(check_blank)
-    if intensity == 255:
+    if intensity > 250:
         return -1
+    
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    intensity = np.mean(check_blank)
+
+    center_x = denoised_image.shape[0]//2
+    center_y = denoised_image.shape[1]//2
+    denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = blurred.shape[0]//2
+    center_y = blurred.shape[1]//2
+    blurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = sharpened_image.shape[0]//2
+    center_y = sharpened_image.shape[1]//2
+    sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
+    center_x = binary_image.shape[0]//2
+    center_y = binary_image.shape[1]//2
+    binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    
     
     # Select the most effective preprocessed image
     # Based on experiments, sharpened or binary image is usually sufficient
-    processed_images = [denoised_image, binary_image, blurred]
+    processed_images = [denoised_image, binary_image]
     
     all_results = []
     if character:

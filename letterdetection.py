@@ -180,10 +180,9 @@ def train(model):
 
 
 def decode(image, model):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    digit = predict_digit(model, gray)
-    plt.imshow(gray, cmap='gray')
+    digit = predict_digit(model, image)
+    plt.imshow(image, cmap='gray')
     plt.title("Digit Region")
     plt.show()
     
