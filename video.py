@@ -36,33 +36,17 @@ def doThings(frame, outputFrame):
         double_text = []
         avgConfidence = []
         solved = []
-        i=0
-        while(i<5):
-            i+=1
-            #ret, frame = cap.read()
-            #cv2.imshow('frame', frame)
-            #if cv2.waitKey(1) == ord('q'):
-            #    exitProgram(cap)
+        success = False
+        while(success!=True):
             curFrame = frame[0]
-            out = assumedSolved(curFrame)
-            if out==-1:
-                i-=1
-                continue
-            if out==-2:
-                i-=1
-                continue
-            if out==-3:
-                i-=1
+            out = solveSimple(curFrame)
+            if not type(out) == type(-1):
+                success = True
+            else:
                 continue
             double_text.append(out[0])
             avgConfidence.append(out[1])
             solved.append(out[2])
-            #double_text.append([None])
-            #avgConfidence.append([None])
-            #solved.append([None])
-            #threadPool.append(threading.Thread(target=solve, args=(frame,double_text[i],avgConfidence[i],solved[i])))
-            #threadPool[i].start()
-        
         img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
         while True:
             out = render(frame[0], np.array(double_text[0]).T.flatten())

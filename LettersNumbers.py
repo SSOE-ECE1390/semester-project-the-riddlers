@@ -65,7 +65,8 @@ def detect_text(frame):
 
 def process_grid_image(frame):
     #Convert the frame to grayscale (improves OCR accuracy)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = frame
+    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
     thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,57,5)
 
@@ -113,7 +114,8 @@ def process_text_with_confidence(image, config):
 
 #This function is used for testing
 def extract_number_test(img, test, character):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = img
 
     # Preprocessing
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -191,7 +193,8 @@ def extract_number_test(img, test, character):
         return -1  # Return -1 if no valid digit is found
     
 def image_to_letter(img, character):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = img
 
     # Preprocessing
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -253,7 +256,8 @@ def image_to_letter(img, character):
         return -1  # Return -1 if no valid digit is found
     
 def image_to_letter_easyocr(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = img
     reader = easyocr.Reader(["en"])
     
     # Preprocessing
@@ -291,7 +295,7 @@ def image_to_letter_easyocr(img):
     
 def process_image(args):
     img, char = args
-    return image_to_letter(img, char)
+    return extract_number_test(img,"", char)
 
 def process_image_easyocr(args):
     img, char = args

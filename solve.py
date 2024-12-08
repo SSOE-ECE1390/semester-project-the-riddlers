@@ -25,19 +25,38 @@ def solveSimple(myImage):
     markers_detected, roi, (x,y,w,h) = paper_markers(myImage)
     if not markers_detected:
         return -2
+    print("markers detected")
     # send output of preprocessing function to getSquares to get list of rectangles
+    print("starting getSquares")
     squares = getSquares(roi, x, y, w, h)
+    test = myImage.copy()
+    print("ending getSquares")
     if squares==-1:
         return -1
-    if(not len(squares)==81):
+    trueSquares = []
+    for i in squares:
+        if((i[1][1] - i[0][1]) > 30 and (i[1][0]-i[0][0]) > 30):
+            trueSquares.append(i)
+    squares = trueSquares
+    if(not len(squares)>=81):
         return -1
+    for i in squares:
+        test = cv2.rectangle(test, i[0], i[1], (255,0,0), 3)
+    plt.imshow(test)
+    plt.show()
     images_2 = [None for _ in range(len(squares))]
-        
+
+    B, G, R = cv2.split(myImage)   
+    JustRed = cv2.bitwise_xor(R,cv2.bitwise_or(G, B))
+    plt.imshow(JustRed)
+    plt.show()
+
     for idx, j in enumerate(squares):
-        images_2[idx] = myImage[j[0][1]:j[1][1], j[0][0]:j[1][0]]
+        images_2[idx] = JustRed[j[0][1]:j[1][1], j[0][0]:j[1][0]]
     
-    
+    print("Starting tesseract")
     images_to_strings_out = images_to_strings(images_2, True)
+    print("Finished tesseract")
     #print(images_to_strings_out) 
     extracted_text = []
     confidences = []
@@ -53,7 +72,10 @@ def solveSimple(myImage):
     double_text = single_to_double_column_first(extracted_text)
     #print(double_text)
     
+    print("Starting Sudoku")
+    print(double_text)
     solved = solve_sudoku(double_text)
+    print("Finished Sudoku")
     if not solved:
         return -3
     print(solved)
@@ -77,16 +99,30 @@ def solve(myImage, double_text, avgConfidence, solved):
     roi, (x,y,w,h) = paper_markers(myImage)
     # send output of preprocessing function to getSquares to get list of rectangles
     squares = getSquares(roi, x, y, w, h)
-    
+    trueSquares = []
+    print("We have finished with the squares")
+
+
+    B, G, R = myImage.split()   
     if squares==-1:
         return -1
+    for i in squares:
+        if(i[1][1] - i[0][1] > 30 and i[1][0]-i[0][0] > 30):
+            trueSquares.append(i)
+    print("The squares are working")
+
+    JustRed = cv2.bitwise_xor(R,cv2.bitwise_or(G, B))
+    plt.imshow(JustRed)
+    plt.show()
     
     images_2 = [None for _ in range(len(squares))]
         
     for idx, j in enumerate(squares):
         images_2[idx] = myImage[j[0][1]:j[1][1], j[0][0]:j[1][0]]
     
+    print("Starting pytesseract")
     images_to_strings_out = images_to_strings(images_2, True)
+    print("Finished pytesseract")
     #print(images_to_strings_out) 
     extracted_text = []
     confidences = []
@@ -102,7 +138,10 @@ def solve(myImage, double_text, avgConfidence, solved):
     double_text[0] = single_to_double_column_first(extracted_text)
     #print(double_text)
     
+    print("Starting solve sudoku")
+    print(double_text[0])
     solved[0] = solve_sudoku(double_text[0])
+    print("Finished solve sudoku")
     #print(double_text)
     avgConfidence[0] = np.mean(confidences)
     return double_text[0], avgConfidence[0], solved[0]
