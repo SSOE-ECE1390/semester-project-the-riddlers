@@ -30,7 +30,7 @@ def render(img, solvedPuzzle):
     print(solvedPuzzle)
     print("Above is the solved Puzzle")
     myRender = img.copy()
-    markers_detected, roi, (x,y,w,h) = paper_markers(img)
+    markers_detected, roi, (x,y,w,h), ids = paper_markers(img)
     if not markers_detected:
         return -2
     squares = getSquares(roi, x,y,w,h)

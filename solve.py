@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import getNumber
 from getNumber import images_to_strings
 
+cache = {}
+
 #Converts a singe array of anysize above 81 to a 9x9 array
 def single_to_double_column_first(single_array):
     if len(single_array) < 81:
@@ -24,10 +26,14 @@ def single_to_double_column_first(single_array):
 
 def solveSimple(myImage):
     myImage = myImage.copy()
-    markers_detected, roi, (x,y,w,h) = paper_markers(myImage)
+    markers_detected, roi, (x,y,w,h), ids = paper_markers(myImage)
     if not markers_detected:
         return -2
     print("markers detected")
+    key = (ids[0][0], ids[1][0], ids[2][0], ids[3][0])
+    if key in cache:
+        return cache[key]
+    print(ids[0])
     # send output of preprocessing function to getSquares to get list of rectangles
     print("starting getSquares")
     squares = getSquares(roi, x, y, w, h)
@@ -77,6 +83,8 @@ def solveSimple(myImage):
     print(double_text)
     #print(double_text)
     avgConfidence = np.mean(confidences)
+    results = (double_text, avgConfidence, solved)
+    cache[key]=results
     return double_text, avgConfidence, solved
 
 def assumedSolved(myImage):

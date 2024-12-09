@@ -59,6 +59,7 @@ def paper_markers(img):
            h = -1
            marker_detected = False
            roi = img 
+           ids = [[-1],[-1],[-1],[-1]]
 
     else:
         x = -1
@@ -67,7 +68,8 @@ def paper_markers(img):
         h = -1
         marker_detected = False
         roi = img
-    return marker_detected,roi, (x,y,w,h)
+        ids = [[-1],[-1],[-1],[-1]]
+    return marker_detected,roi, (x,y,w,h),sorted(ids)
 
 
 if __name__=='__main__':
