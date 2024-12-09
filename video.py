@@ -7,11 +7,13 @@ from solve import solve, solveSimple, assumedSolved
 import matplotlib.pyplot as plt
 from render import render
 
+#Exit the program
 def exitProgram(cap, code=0):
     cap.release()
     cv2.destroyAllWindows()
     exit(code)
 
+#Loop to run video
 def renderLoop(frame, inputFrame):
     cap = cv2.VideoCapture(0, cv2.CAP_MSMF)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
@@ -29,6 +31,8 @@ def renderLoop(frame, inputFrame):
         if cv2.waitKey(1) == ord('q'):
             exitProgram(cap)
 
+#Solves the sudoku puzzle in the background while the video is playing.
+#Will run solveSImple until the program solves the puzzle and then will output solutoin to paper using render functoin
 def doThings(frame, outputFrame):
     while True:
         while type(frame[0])==type(None):

@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-    
+#Inputs text into the center of the parameters   
 def input_text(image, topleft, bottomright, text):
     top = topleft[0] 
     bottom = bottomright[0]
@@ -26,6 +26,7 @@ def input_text(image, topleft, bottomright, text):
     
     return image
 
+#Highlights the detected squares and outputs the numbers onto an image
 def render(img, solvedPuzzle):
     print(solvedPuzzle)
     print("Above is the solved Puzzle")

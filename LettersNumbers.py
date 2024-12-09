@@ -15,6 +15,7 @@ import easyocr
 INTENSITY_THRESHOLD_HIGH = 250
 INTENSITY_THRESHOLD_LOW = 5
 
+############This file was used for testing diffrenet types of filters, easyocr, and pytesseract for this project. To see the final preprocessing, look into getNumber.py.################
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 

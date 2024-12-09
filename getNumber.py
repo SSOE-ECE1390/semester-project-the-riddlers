@@ -14,7 +14,7 @@ INTENSITY_THRESHOLD_LOW = 5
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-
+#Preprocessing: Filter the image based on color, along with applying a mask, to find the letters in the image.
 def preprocessing(img):
     B,G,R = cv2.split(img)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -33,11 +33,12 @@ def preprocessing(img):
     #plt.show()
     return anded
 
+
 def process_image(args):
     img = args
     return image_to_letter(img)
 
-
+# Uses pytesseract to return the confidence and the string detected
 def process_text_with_confidence(image, config):
     data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT, config=config)
     texts = data['text']
@@ -49,7 +50,8 @@ def process_text_with_confidence(image, config):
             results.append((text.strip(), int(confidences[i])))
 
     return results
-    
+
+#Converts the detected letter in the image into a string. Return -1 if the character isn't detected.  
 def image_to_letter(img):
     #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edgeCut = 10
@@ -76,6 +78,7 @@ def image_to_letter(img):
     else:
         return -1  # Return -1 if no valid digit is found
  
+#This speeds up the pytesseract to perform multiple functoin calls at once.
 def images_to_strings(images):
     
     # Create arguments for each image

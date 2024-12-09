@@ -16,6 +16,9 @@ from multiprocessing.pool import ThreadPool
 from numpy.linalg import norm
 from common import clock, mosaic
 
+################This code is taken from the LectureNotebooks. Tried to detect numbers based on the MNIST dataset with hand draw digits.#####################
+################Accuracy wasn't great though so this file is not used in the final project.#################################################################
+
 SZ = 20 # size of each digit is SZ x SZ
 CLASS_N = 10
 DIGITS_FN = "digits.png"

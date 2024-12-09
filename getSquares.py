@@ -5,11 +5,13 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colormaps
 from sklearn.cluster import KMeans
 
+#reject squares that don't meet the size requirements
 def reject_outliers(data, ind, m=2.0):
     myData = np.array(data)
     relevant = np.array(data)[:,ind]
     return myData[(abs(relevant-np.mean(relevant)) < m*np.std(relevant))].tolist()
 
+#processing for image detected
 def newPreprocessing(img):
     B,G,R = cv2.split(img)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -48,6 +50,7 @@ def newPreprocessing(img):
 
     return anded
 
+#Use an adaptive threshold and contours to detect the grid
 def preprocessing(img):
     B,G,R = cv2.split(img)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -109,6 +112,7 @@ def preprocessing(img):
     
     return linesP
 
+#Finds where the lines intercept to find the specific squares
 def calcIntercept(line1, line2):
     slope1 = (line1[1]-line1[3])/(line1[0]-line1[2])
     intercept1 = line1[1]-slope1*line1[0]#-line1[1]
@@ -129,7 +133,7 @@ def calcIntercept(line1, line2):
 
     return [x.astype(np.int32),y.astype(np.int32)]
     
-
+# main function that takes the mean of all the detected hough lines and returns the corridnates for each of the squares
 def getSquares(img, x, y, w, h):
     lines = preprocessing(img)
     #myTest = img.copy()

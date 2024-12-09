@@ -24,6 +24,7 @@ def single_to_double_column_first(single_array):
     
     return double_array
 
+#Solves the puzzle based on the pipeline presented in class: paper detection -> grid recognition -> letter recognition -> display results
 def solveSimple(myImage):
     myImage = myImage.copy()
     markers_detected, roi, (x,y,w,h), ids = paper_markers(myImage)
@@ -87,13 +88,14 @@ def solveSimple(myImage):
     cache[key]=results
     return double_text, avgConfidence, solved
 
+#Testing for displaying results in video
 def assumedSolved(myImage):
     double_text = [[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]]
     avgConfidence = 0
     solved=True
     return double_text, avgConfidence, solved
 
-
+#Testing to solve the puzzle(not used)
 def solve(myImage, double_text, avgConfidence, solved):
     print(double_text)
     print(avgConfidence)

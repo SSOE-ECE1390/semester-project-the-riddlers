@@ -7,6 +7,7 @@ import PaperDetMarkers
 
 from packaging import version  # Installed with setuptools, so should already be installed in your env.
 
+#detects the paper markers to find the paper
 def paper_markers(img):
 
     #initialize no paper in frame
