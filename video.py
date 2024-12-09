@@ -38,21 +38,27 @@ def doThings(frame, outputFrame):
         solved = []
         success = False
         while(success!=True):
+            print("Solving Puzzle")
             curFrame = frame[0]
             out = solveSimple(curFrame)
             if not type(out) == type(-1):
                 success = True
             else:
                 continue
+            print(out[0])
             double_text.append(out[0])
             avgConfidence.append(out[1])
             solved.append(out[2])
-        img = cv2.imread("WIN_20241202_17_10_34_Pro.jpg")
         while True:
+            print("Rendering solved puzzle")
             out = render(frame[0], np.array(double_text[0]).T.flatten())
             if type(out)==type(-1) and out==-1:
                 print("We are failing")
                 break
+            if type(out)==type(-2) and out==-2:
+                outputFrame[0] = None
+                break
+
             outputFrame[0] = out
 
 

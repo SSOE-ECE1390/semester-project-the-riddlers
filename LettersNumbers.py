@@ -12,6 +12,8 @@ import easyocr
 #PyTesseract Lib https://pypi.org/project/pytesseract/
 #Tesseract https://tesseract-ocr.github.io/tessdoc/Installation.html
 #https://gist.github.com/qgolsteyn/7da376ced650a2894c2432b131485f5d
+INTENSITY_THRESHOLD_HIGH = 250
+INTENSITY_THRESHOLD_LOW = 5
 
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -121,7 +123,8 @@ def extract_number_test(img, test, character):
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
-    _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    adaptive = cv2.adaptiveThreshold(sharpened_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    _, binary_image = cv2.threshold(sharpened_image, 75, 255, cv2.THRESH_BINARY)
 
     # Display preprocessing results
     print(binary_image.shape)
@@ -132,31 +135,32 @@ def extract_number_test(img, test, character):
 
     center_x = denoised_image.shape[0]//2
     center_y = denoised_image.shape[1]//2
-    denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = blurred.shape[0]//2
     center_y = blurred.shape[1]//2
-    blurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
+    Eblurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = sharpened_image.shape[0]//2
     center_y = sharpened_image.shape[1]//2
-    sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = binary_image.shape[0]//2
     center_y = binary_image.shape[1]//2
-    binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     
     plt.figure(figsize=(10, 10))
-    plt.subplot(1, 5, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
-    plt.subplot(1, 5, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
-    plt.subplot(1, 5, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
-    plt.subplot(1, 5, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
-    plt.subplot(1, 5, 5), plt.imshow(check_blank, cmap='gray'), plt.title('Intensity')
+    plt.subplot(1, 6, 1), plt.imshow(denoised_image, cmap='gray'), plt.title('Denoised')
+    plt.subplot(1, 6, 2), plt.imshow(blurred, cmap='gray'), plt.title('Blurred')
+    plt.subplot(1, 6, 3), plt.imshow(sharpened_image, cmap='gray'), plt.title('Sharpened')
+    plt.subplot(1, 6, 4), plt.imshow(binary_image, cmap='gray'), plt.title('Binary')
+    plt.subplot(1, 6, 5), plt.imshow(adaptive, cmap='gray'), plt.title('Adaptive')
+    plt.subplot(1, 6, 6), plt.imshow(check_blank, cmap='gray'), plt.title('Intensity')
     plt.show()
     
     print(f"Intensity {intensity}")
-    if intensity > 250:
+    if intensity > INTENSITY_THRESHOLD_HIGH or intensity < INTENSITY_THRESHOLD_LOW:
         print("\nNo Letter")
         return -1
     
@@ -179,7 +183,7 @@ def extract_number_test(img, test, character):
         for text, confidence in results:
             print(f"  Text: {text}, Confidence: {confidence}")
             # Filter for single digits and confidence > 50
-            if len(text) == 1: #and confidence > 50:
+            if len(text) == 1 and confidence > 35:
                 all_results.append((text, confidence))
 
     # Find the result with the highest confidence
@@ -200,40 +204,41 @@ def image_to_letter(img, character):
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     blurred = cv2.GaussianBlur(gray, (9, 9), 0)
     sharpened_image = cv2.addWeighted(denoised_image, 1.5, blurred, -0.5, 0)
-    _, binary_image = cv2.threshold(sharpened_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    #adaptive = cv2.adaptiveThreshold(sharpened_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    _, binary_image = cv2.threshold(sharpened_image, 75, 255, cv2.THRESH_BINARY)
     
     center_x = binary_image.shape[0]//2
     center_y = binary_image.shape[1]//2
     check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     intensity = np.mean(check_blank)
-    if intensity > 250:
+    if intensity > INTENSITY_THRESHOLD_HIGH and intensity < INTENSITY_THRESHOLD_LOW:
         return -1
     
     center_x = binary_image.shape[0]//2
     center_y = binary_image.shape[1]//2
-    check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #check_blank = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     intensity = np.mean(check_blank)
 
     center_x = denoised_image.shape[0]//2
     center_y = denoised_image.shape[1]//2
-    denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #denoised_image = denoised_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = blurred.shape[0]//2
     center_y = blurred.shape[1]//2
-    blurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
+    #blurred = blurred[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = sharpened_image.shape[0]//2
     center_y = sharpened_image.shape[1]//2
-    sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #sharpened_image = sharpened_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     center_x = binary_image.shape[0]//2
     center_y = binary_image.shape[1]//2
-    binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
+    #binary_image = binary_image[center_x-30:center_x+30, center_y-30:center_y+30]
     
     
     # Select the most effective preprocessed image
     # Based on experiments, sharpened or binary image is usually sufficient
-    processed_images = [denoised_image, binary_image]
+    processed_images = [denoised_image, binary_image, blurred]
     
     all_results = []
     if character:
@@ -244,14 +249,15 @@ def image_to_letter(img, character):
         results = process_text_with_confidence(image, config)
         for text, confidence in results:
             # Filter for single digits and confidence > 50
-            if len(text) == 1: #and confidence > 50:
+            if len(text) == 1 and confidence > 50:
                 all_results.append((text, confidence))
 
     # Find the result with the highest confidence
     #if all_results:
     if len(all_results) != 0:
         best_result = max(all_results, key=lambda x: x[1])  # Sort by confidence
-        return best_result[0], best_result[1]  # Return the digit with the highest confidence
+        print(f"\nBest Single Digit: {best_result[0]} with Confidence: {best_result[1]}")
+        return best_result  # Return the digit with the highest confidence
     else:
         return -1  # Return -1 if no valid digit is found
     
@@ -295,6 +301,10 @@ def image_to_letter_easyocr(img):
     
 def process_image(args):
     img, char = args
+    return image_to_letter(img, char)
+
+def process_image_debug(args):
+    img, char = args
     return extract_number_test(img,"", char)
 
 def process_image_easyocr(args):
@@ -312,6 +322,17 @@ def images_to_strings_easyocr(images, character):
     
     return results
 
+def images_to_strings_debug(images, character):
+    
+    # Create arguments for each image
+    args_list = [(img, character) for img in images]
+    
+    # Use multiprocessing Pool to process images in parallel
+    with Pool() as pool:
+        results = pool.map(process_image_debug, args_list)
+    
+    return results
+    
 def images_to_strings(images, character):
     
     # Create arguments for each image

@@ -1,10 +1,12 @@
 from getSquares import getSquares
 from PaperDetMarkersVideo import paper_markers
-from LettersNumbers import images_to_strings
+#from LettersNumbers import images_to_strings, images_to_strings_debug
 from sudoku_solver import solve_sudoku
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import getNumber
+from getNumber import images_to_strings
 
 #Converts a singe array of anysize above 81 to a 9x9 array
 def single_to_double_column_first(single_array):
@@ -29,7 +31,6 @@ def solveSimple(myImage):
     # send output of preprocessing function to getSquares to get list of rectangles
     print("starting getSquares")
     squares = getSquares(roi, x, y, w, h)
-    test = myImage.copy()
     print("ending getSquares")
     if squares==-1:
         return -1
@@ -40,27 +41,21 @@ def solveSimple(myImage):
     squares = trueSquares
     if(not len(squares)>=81):
         return -1
-    for i in squares:
-        test = cv2.rectangle(test, i[0], i[1], (255,0,0), 3)
-    plt.imshow(test)
-    plt.show()
     images_2 = [None for _ in range(len(squares))]
 
-    B, G, R = cv2.split(myImage)   
-    JustRed = cv2.bitwise_xor(R,cv2.bitwise_or(G, B))
-    plt.imshow(JustRed)
-    plt.show()
+    lettersNumbersImage = getNumber.preprocessing(myImage)
 
     for idx, j in enumerate(squares):
-        images_2[idx] = JustRed[j[0][1]:j[1][1], j[0][0]:j[1][0]]
+        images_2[idx] = lettersNumbersImage[j[0][1]:j[1][1], j[0][0]:j[1][0]]
     
     print("Starting tesseract")
-    images_to_strings_out = images_to_strings(images_2, True)
+    images_to_strings_out = images_to_strings(images_2)
     print("Finished tesseract")
     #print(images_to_strings_out) 
     extracted_text = []
     confidences = []
     for i in images_to_strings_out:
+        print(i)
         if type(i)==tuple:
             extracted_text.append(int(i[0]))
             confidences.append(i[1])
@@ -112,8 +107,6 @@ def solve(myImage, double_text, avgConfidence, solved):
     print("The squares are working")
 
     JustRed = cv2.bitwise_xor(R,cv2.bitwise_or(G, B))
-    plt.imshow(JustRed)
-    plt.show()
     
     images_2 = [None for _ in range(len(squares))]
         

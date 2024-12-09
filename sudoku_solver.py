@@ -34,7 +34,7 @@ def is_valid(puzzle, guess, row, col):
 
     return True
 
-def solve_sudoku(puzzle):
+def solve_sudoku(puzzle, recursions=0):
     """
     Solves a Sudoku puzzle using backtracking algorithm.
 
@@ -44,7 +44,9 @@ def solve_sudoku(puzzle):
     Returns:
         bool: True if the puzzle is solved, False if unsolvable.
     """
-
+    if recursions>1000:
+        return False
+    recursions+=1
     def find_next_empty(puzzle):
         """
         Finds the next row, col on the puzzle that's not filled yet (represented by -1).
@@ -65,7 +67,7 @@ def solve_sudoku(puzzle):
     for guess in range(1, 10):
         if is_valid(puzzle, guess, row, col):
             puzzle[row][col] = guess  # Place guess on the board
-            if solve_sudoku(puzzle):  # Recurse to solve the rest of the puzzle
+            if solve_sudoku(puzzle, recursions):  # Recurse to solve the rest of the puzzle
                 return True
 
         # Backtrack if the guess was not correct

@@ -32,7 +32,7 @@ def render(img, solvedPuzzle):
     myRender = img.copy()
     markers_detected, roi, (x,y,w,h) = paper_markers(img)
     if not markers_detected:
-        return -1
+        return -2
     squares = getSquares(roi, x,y,w,h)
     if squares == -1:
         return -1

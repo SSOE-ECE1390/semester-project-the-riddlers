@@ -52,19 +52,28 @@ def preprocessing(img):
     B,G,R = cv2.split(img)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     #H = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))[0]
-    #plt.imshow(H)
+    #plt.imshow(R)
+    #plt.show()
+    #print((R > 100) & (B < 100))
+    #R[(R > 100) & (B < 100)] = 255
+    #plt.imshow(R)
     #plt.show()
     #get anything white, and make it even more white, take anything not white and make it black
     
-    th,thresh1_img = cv2.threshold(B,170,255,cv2.THRESH_BINARY)
-    th,thresh2_img = cv2.threshold(G,170,255,cv2.THRESH_BINARY)
-    th,thresh3_img = cv2.threshold(R,170,255,cv2.THRESH_BINARY)
+    #th,thresh1_img = cv2.threshold(B,170,255,cv2.THRESH_BINARY)
+    #th,thresh2_img = cv2.threshold(G,170,255,cv2.THRESH_BINARY)
+    #th,thresh3_img = cv2.threshold(R,170,255,cv2.THRESH_BINARY)
     #th,threshH_img = cv2.threshold(H,110,255,cv2.THRESH_BINARY)
     #plt.imshow(threshH_img)
     #plt.show()
     
     #anded = cv2.bitwise_and(cv2.bitwise_and(cv2.bitwise_and(thresh1_img, thresh2_img), thresh3_img), threshH_img)
-    anded = cv2.bitwise_and(cv2.bitwise_and(thresh2_img, thresh3_img), thresh1_img)
+    #anded = cv2.bitwise_and(cv2.bitwise_and(thresh2_img, thresh3_img), thresh1_img)
+    anded = cv2.adaptiveThreshold(img_gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+    anded[(R > 100) & (B < 100)] = 255
+    anded = cv2.medianBlur(anded,5)
+    ret3,anded = cv2.threshold(anded,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    anded = cv2.morphologyEx(anded,cv2.MORPH_OPEN,np.ones((5,5)),iterations=1)
     #anded = cv2.bitwise_and(thresh1_img, threshH_img)
     #anded = cv2.bitwise_and(thresh1_img, thresh2_img, thresh3_img)
     
@@ -93,7 +102,8 @@ def preprocessing(img):
     
     lines = cv2.cvtColor(lines.astype(np.uint8), cv2.COLOR_RGB2GRAY)
 
-    
+
+    #
     linesP = cv2.HoughLinesP(lines, 1, np.pi / 180, 50, None, 400, 20)
     print(linesP)
     
@@ -122,8 +132,14 @@ def calcIntercept(line1, line2):
 
 def getSquares(img, x, y, w, h):
     lines = preprocessing(img)
+    #myTest = img.copy()
+    #for i in lines:
+    #    cv2.line(myTest, i[0][0:2], i[0][2:4], (255,0,0), 3)
+    #plt.imshow(myTest)
+    #plt.show()
     if type(lines) == type(None):
         return -1
+    print("here")
     verticalLines = []
     horizontalLines = []
     for i in lines:
@@ -149,13 +165,11 @@ def getSquares(img, x, y, w, h):
     horizontalLines = newHorizontalLines
     verticalLines = newVerticalLines
 
+
+
+
     # remove outliers
     #global test
-    #myTest = test.copy()
-    #for i in verticalLines:
-    #    cv2.line(myTest, i[0:2], i[2:4], (255,0,0), 3)
-    #plt.imshow(myTest)
-    #plt.show()
     ##verticalLines = reject_outliers(verticalLines, 0, 1.5)
     ##horizontalLines = reject_outliers(horizontalLines, 1, 1.5)
 
@@ -213,7 +227,6 @@ def getSquares(img, x, y, w, h):
 
     verticalLines = verticalMeanLines
     horizontalLines = horizontalMeanLines
-
 
     #lineTest = test.copy()
     #for i in verticalMeanLines:
